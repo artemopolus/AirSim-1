@@ -79,7 +79,7 @@ void APlaneFlyingPawn::NotifyHit(class UPrimitiveComponent* MyComp, class AActor
         HitNormal, NormalImpulse, Hit);
 }
 
-void APlaneFlyingPawn::setRotorSpeed(const std::vector<MultirotorPawnEvents::RotorInfo>& rotor_infos)
+void APlaneFlyingPawn::setRotorSpeed(const std::vector<PlanePawnEvents::RotorInfo>& rotor_infos)
 {
     for (auto rotor_index = 0; rotor_index < rotor_infos.size(); ++rotor_index) {
         auto comp = rotating_movements_[rotor_index];
