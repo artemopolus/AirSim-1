@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 
-#include "FlyingPawn.h"
+#include "PlaneFlyingPawn.h"
 #include "common/Common.hpp"
 #include "SimMode/SimModeWorldBase.h"
 #include "api/VehicleSimApiBase.hpp"

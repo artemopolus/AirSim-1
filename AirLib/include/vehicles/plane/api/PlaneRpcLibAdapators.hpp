@@ -8,6 +8,7 @@
 #include "common/CommonStructs.hpp"
 #include "api/RpcLibAdapatorsBase.hpp"
 #include "vehicles/plane/api/PlaneCommon.hpp"
+#include "vehicles/multirotor/api/MultirotorCommon.hpp"
 #include "vehicles/plane/api/PlaneApiBase.hpp"
 #include "common/ImageCaptureBase.hpp"
 #include "safety/SafetyEval.hpp"
@@ -80,8 +81,8 @@ public:
 
 }} //namespace
 
-MSGPACK_ADD_ENUM(msr::airlib::DrivetrainType);
-MSGPACK_ADD_ENUM(msr::airlib::LandedState);
+// MSGPACK_ADD_ENUM(msr::airlib::PlaneDrivetrainType);
+// MSGPACK_ADD_ENUM(msr::airlib::PlaneLandedState);
 
 
 #endif
