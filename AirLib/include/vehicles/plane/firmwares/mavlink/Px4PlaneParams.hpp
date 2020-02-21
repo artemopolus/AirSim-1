@@ -36,20 +36,11 @@ namespace msr {
 			{
 				auto& params = getParams();
 
-				if (connection_info_.model == "Blacksheep") {
-					setupFrameBlacksheep(params);
-				}
-				else if (connection_info_.model == "Flamewheel") {
-					setupFrameFlamewheel(params);
-				}
-				else if (connection_info_.model == "FlamewheelFLA") {
-					setupFrameFlamewheelFLA(params);
-				}
-				else if (connection_info_.model == "Hexacopter") {
-					setupFrameGenericHex(params);
+				if (connection_info_.model == "SomeNoneStandard") {
+					//setupFrameBlacksheep(params);
 				}
 				else //Generic
-					setupFrameGenericQuad(params);
+					setupFrameGenericPlane(params);
 			}
 
 		protected:
@@ -59,6 +50,30 @@ namespace msr {
 			}
 
 		private:
+			void setupFrameGenericPlane(Params & params)
+			{
+				params.rotor_count = 1;
+				params.rudder_count = 2;
+				std::vector<real_T> arm_length;
+				std::vector<real_T> rudder_length(params.rudder_count, 0.5f);
+				arm_length.emplace_back(0.3f); // расстояние до ротора
+				arm_length.emplace_back(0.6f); // расстояние до центра крыла
+				arm_length.emplace_back(0.6f);
+				//set up mass
+				// TODO: нужно с этим разобраться
+				params.mass = 1.0f; //can be varied from 0.800 to 1.600
+				real_T motor_assembly_weight = 0.055f;  //weight for MT2212 motor for F450 frame
+				real_T box_mass = params.mass - params.rotor_count * motor_assembly_weight;
+				params.rotor_params.calculateMaxThrust();
+				params.rudder_params.calculateMaxThrust(rudder_length.data());
+				//set up dimensions of core body box or abdomen (not including arms).
+				params.body_box.x() = 0.180f; params.body_box.y() = 0.11f; params.body_box.z() = 0.040f;
+				real_T rotor_z = 2.5f / 100;
+				initializeSimplePlane(params.rotor_poses, params.rotor_count, 
+										params.rudder_poses, params.rudder_count, arm_length.data(), rotor_z);
+				//compute inertia matrix
+				computeInertiaMatrix(params.inertia, params.body_box, params.rotor_poses, box_mass, motor_assembly_weight);
+			}
 			void setupFrameGenericQuad(Params& params)
 			{
 				//set up arm lengths

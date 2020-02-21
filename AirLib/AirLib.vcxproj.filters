@@ -477,6 +477,12 @@
     <ClInclude Include="include\vehicles\plane\firmwares\mavlink\Px4PlaneParams.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\vehicles\plane\RudderParams.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vehicles\plane\Rudder.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\safety\ObstacleMap.cpp">

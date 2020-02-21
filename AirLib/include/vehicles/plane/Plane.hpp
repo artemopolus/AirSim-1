@@ -8,6 +8,7 @@
 #include "common/Common.hpp"
 #include "common/CommonStructs.hpp"
 #include "vehicles/multirotor/Rotor.hpp"
+#include "Rudder.hpp"
 #include "api/VehicleApiBase.hpp"
 #include "api/VehicleSimApiBase.hpp"
 #include "PlaneParams.hpp"
@@ -60,6 +61,8 @@ namespace msr {
 					reporter.endHeading(false, 1);
 					rotors_.at(rotor_index).reportState(reporter);
 				}
+				//TODO: report rudders
+
 			}
 			//*** End: UpdatableState implementation ***//
 
@@ -208,8 +211,10 @@ namespace msr {
 
 			//let us be the owner of rotors object
 			vector<Rotor> rotors_;
+			// ѕомимо роторов здесь доступны и рули
+			vector<Rudder> rudder_;
 			vector<PhysicsBodyVertex> drag_vertices_;
-
+			
 			std::unique_ptr<Environment> environment_;
 			VehicleApiBase* vehicle_api_;
 		};

@@ -177,6 +177,8 @@
     <ClInclude Include="include\vehicles\plane\Plane.hpp" />
     <ClInclude Include="include\vehicles\plane\PlaneParams.hpp" />
     <ClInclude Include="include\vehicles\plane\PlaneParamsFactory.hpp" />
+    <ClInclude Include="include\vehicles\plane\Rudder.hpp" />
+    <ClInclude Include="include\vehicles\plane\RudderParams.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\api\RpcLibClientBase.cpp" />

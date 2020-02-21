@@ -7,6 +7,7 @@
 
 #include "common/Common.hpp"
 #include "vehicles/multirotor/RotorParams.hpp"
+#include "Rudder.hpp"
 #include "sensors/SensorCollection.hpp"
 #include "sensors/SensorFactory.hpp"
 #include "vehicles/plane/api/PlaneApiBase.hpp"
@@ -33,6 +34,9 @@ namespace msr {
 				/*********** required parameters ***********/
 				uint rotor_count;
 				vector<RotorPose> rotor_poses;
+				/* –ули */
+				uint rudder_count;
+				vector<RotorPose> rudder_poses;
 				real_T mass;
 				Matrix3x3r inertia;
 				Vector3r body_box;
@@ -47,6 +51,7 @@ namespace msr {
 				real_T restitution = 0.55f; // value of 1 would result in perfectly elastic collisions, 0 would be completely inelastic.
 				real_T friction = 0.5f;
 				RotorParams rotor_params;
+				RudderParams rudder_params;
 			};
 
 
@@ -97,6 +102,49 @@ namespace msr {
 			}
 
 		protected: //static utility functions for derived classes to use
+			// ѕрежде всего генерируем самолетик
+			// »сходный вариант это винт сзади и два управл€ющих элерона: итого, три управл€ющих элемента
+
+			static void initializeSimplePlane(
+				vector<RotorPose>& rotor_poses, /* роторы */
+				uint rotor_count, /* TODO должно быть один сейчас */
+				vector<RotorPose>& rudder_poses, /* рули */
+				uint rudder_count, /* TODO должно быть два сейчас */
+				real_T arm_lengths[], /* рассто€ни€ */
+				real_T rotor_z /* z relative to center of gravity */
+			)
+			{
+				/*
+				    _/   \_
+				  _/	   \_
+				_/			 \_
+				_|||||___|||||_
+				  (0)  |   (1) -- рули
+					-------
+					  (0) -- ротор
+
+					  Noth East Down (NED)
+				*/
+				Vector3r unit_z(0, 0, -1);  //NED frame
+				if (rotor_count == 1 && rudder_count == 2)
+				{
+					rotor_poses.clear();
+					rudder_poses.clear();
+					Quaternionr hexa_rot30(AngleAxisr(M_PIf / 6, unit_z)); // 30 degrees
+					Quaternionr hexa_rot60(AngleAxisr(M_PIf / 3, unit_z)); // 60 degrees
+					Quaternionr no_rot(AngleAxisr(0, unit_z));
+					Vector3r forward(1, 0, 0);
+					// vectors below are rotated according to NED left hand rule (so the vectors are rotated counter clockwise).
+					rotor_poses.emplace_back(VectorMath::rotateVector(Vector3r( -arm_lengths[0], 0, rotor_z), no_rot, true),
+						forward, RotorTurningDirection::RotorTurningDirectionCW);
+					rudder_poses.emplace_back(VectorMath::rotateVector(Vector3r(0, -arm_lengths[1], rotor_z), hexa_rot30, true),
+						unit_z, RotorTurningDirection::RotorTurningDirectionCW);
+					rudder_poses.emplace_back(VectorMath::rotateVector(Vector3r(0, -arm_lengths[2], rotor_z), hexa_rot60, true),
+						unit_z, RotorTurningDirection::RotorTurningDirectionCW);
+				}
+				else
+					throw std::invalid_argument("This count of rotors and rudders is not supported by this method!");
+			}
 
 			/// Initializes 4 rotors in the usual QuadX pattern:  http://ardupilot.org/copter/_images/MOTORS_QuadX_QuadPlus.jpg
 			/// which shows that given an array of 4 motors, the first is placed top right and flies counter clockwise (CCW) and
