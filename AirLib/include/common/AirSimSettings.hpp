@@ -815,6 +815,12 @@ private:
             PawnPath("Class'/AirSim/Blueprints/BP_FlyingPawn.BP_FlyingPawn_C'"));
         pawn_paths.emplace("DefaultComputerVision",
             PawnPath("Class'/AirSim/Blueprints/BP_ComputerVisionPawn.BP_ComputerVisionPawn_C'"));
+		/* включаем наш самолет в pawn path */
+		//TODO : valid path plz!!!!!
+		pawn_paths.emplace(
+			"DefaultPlane", /* как и в SimModeWorldPlane */
+			PawnPath("Class'/AirSim/Blueprints/BP_PlaneFlyingPawn.BP_PlaneFlyingPawn_C'") /* путь*/
+		);
 
     }
 

@@ -172,6 +172,9 @@
     <ClInclude Include="include\vehicles\multirotor\RotorParams.hpp" />
     <ClInclude Include="include\vehicles\plane\api\PlaneApiBase.hpp" />
     <ClInclude Include="include\vehicles\plane\api\PlaneCommon.hpp" />
+    <ClInclude Include="include\vehicles\plane\api\PlaneRpcLibAdapators.hpp" />
+    <ClInclude Include="include\vehicles\plane\api\PlaneRpcLibClient.hpp" />
+    <ClInclude Include="include\vehicles\plane\api\PlaneRpcLibServer.hpp" />
     <ClInclude Include="include\vehicles\plane\firmwares\mavlink\MavlinkPlaneApi.hpp" />
     <ClInclude Include="include\vehicles\plane\firmwares\mavlink\Px4PlaneParams.hpp" />
     <ClInclude Include="include\vehicles\plane\Plane.hpp" />
@@ -192,6 +195,8 @@
     <ClCompile Include="src\vehicles\multirotor\api\MultirotorRpcLibClient.cpp" />
     <ClCompile Include="src\vehicles\multirotor\api\MultirotorRpcLibServer.cpp" />
     <ClCompile Include="src\vehicles\plane\api\PlaneApiBase.cpp" />
+    <ClCompile Include="src\vehicles\plane\api\PlaneRpcLibClient.cpp" />
+    <ClCompile Include="src\vehicles\plane\api\PlaneRpcLibServer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MavLinkCom\MavLinkCom.vcxproj">
