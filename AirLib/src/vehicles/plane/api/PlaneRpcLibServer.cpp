@@ -63,24 +63,24 @@ PlaneRpcLibServer::PlaneRpcLibServer(ApiProvider* api_provider, string server_ad
                 return getVehicleApi(vehicle_name)->moveByAngleThrottle(pitch, roll, throttle, yaw_rate, duration); 
     });
     (static_cast<rpc::server*>(getServer()))->
-        bind("moveByVelocity", [&](float vx, float vy, float vz, float duration, DrivetrainType drivetrain, 
+        bind("moveByVelocity", [&](float vx, float vy, float vz, float duration, PlaneDrivetrainType drivetrain, 
             const PlaneRpcLibAdapators::YawMode& yaw_mode, const std::string& vehicle_name) -> bool { 
         return getVehicleApi(vehicle_name)->moveByVelocity(vx, vy, vz, duration, drivetrain, yaw_mode.to()); 
     });
     (static_cast<rpc::server*>(getServer()))->
-        bind("moveByVelocityZ", [&](float vx, float vy, float z, float duration, DrivetrainType drivetrain, 
+        bind("moveByVelocityZ", [&](float vx, float vy, float z, float duration, PlaneDrivetrainType drivetrain, 
             const PlaneRpcLibAdapators::YawMode& yaw_mode, const std::string& vehicle_name) -> bool {
             return getVehicleApi(vehicle_name)->moveByVelocityZ(vx, vy, z, duration, drivetrain, yaw_mode.to()); 
     });
     (static_cast<rpc::server*>(getServer()))->
-        bind("moveOnPath", [&](const vector<PlaneRpcLibAdapators::Vector3r>& path, float velocity, float timeout_sec, DrivetrainType drivetrain, const PlaneRpcLibAdapators::YawMode& yaw_mode,
+        bind("moveOnPath", [&](const vector<PlaneRpcLibAdapators::Vector3r>& path, float velocity, float timeout_sec, PlaneDrivetrainType drivetrain, const PlaneRpcLibAdapators::YawMode& yaw_mode,
         float lookahead, float adaptive_lookahead, const std::string& vehicle_name) -> bool {
             vector<Vector3r> conv_path;
             PlaneRpcLibAdapators::to(path, conv_path);
             return getVehicleApi(vehicle_name)->moveOnPath(conv_path, velocity, timeout_sec, drivetrain, yaw_mode.to(), lookahead, adaptive_lookahead);
         });
     (static_cast<rpc::server*>(getServer()))->
-        bind("moveToPosition", [&](float x, float y, float z, float velocity, float timeout_sec, DrivetrainType drivetrain,
+        bind("moveToPosition", [&](float x, float y, float z, float velocity, float timeout_sec, PlaneDrivetrainType drivetrain,
         const PlaneRpcLibAdapators::YawMode& yaw_mode, float lookahead, float adaptive_lookahead, const std::string& vehicle_name) -> bool {
         return getVehicleApi(vehicle_name)->moveToPosition(x, y, z, velocity, timeout_sec, drivetrain, yaw_mode.to(), lookahead, adaptive_lookahead); 
     });
@@ -90,7 +90,7 @@ PlaneRpcLibServer::PlaneRpcLibServer(ApiProvider* api_provider, string server_ad
         return getVehicleApi(vehicle_name)->moveToZ(z, velocity, timeout_sec, yaw_mode.to(), lookahead, adaptive_lookahead); 
     });
     (static_cast<rpc::server*>(getServer()))->
-        bind("moveByManual", [&](float vx_max, float vy_max, float z_min, float duration, DrivetrainType drivetrain, 
+        bind("moveByManual", [&](float vx_max, float vy_max, float z_min, float duration, PlaneDrivetrainType drivetrain, 
             const PlaneRpcLibAdapators::YawMode& yaw_mode, const std::string& vehicle_name) -> bool {
         return getVehicleApi(vehicle_name)->moveByManual(vx_max, vy_max, z_min, duration, drivetrain, yaw_mode.to()); 
     });

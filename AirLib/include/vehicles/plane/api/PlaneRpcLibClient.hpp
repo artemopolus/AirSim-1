@@ -26,19 +26,19 @@ public:
     PlaneRpcLibClient* moveByAngleZAsync(float pitch, float roll, float z, float yaw, float duration, const std::string& vehicle_name = "");
     PlaneRpcLibClient* moveByAngleThrottleAsync(float pitch, float roll, float throttle, float yaw_rate, float duration, const std::string& vehicle_name = "");
     PlaneRpcLibClient* moveByVelocityAsync(float vx, float vy, float vz, float duration,
-        DrivetrainType drivetrain = DrivetrainType::MaxDegreeOfFreedom, const YawMode& yaw_mode = YawMode(), const std::string& vehicle_name = "");
+        PlaneDrivetrainType drivetrain = PlaneDrivetrainType::MaxDegreeOfFreedom, const YawMode& yaw_mode = YawMode(), const std::string& vehicle_name = "");
     PlaneRpcLibClient* moveByVelocityZAsync(float vx, float vy, float z, float duration,
-        DrivetrainType drivetrain = DrivetrainType::MaxDegreeOfFreedom, const YawMode& yaw_mode = YawMode(), const std::string& vehicle_name = "");
+        PlaneDrivetrainType drivetrain = PlaneDrivetrainType::MaxDegreeOfFreedom, const YawMode& yaw_mode = YawMode(), const std::string& vehicle_name = "");
     PlaneRpcLibClient* moveOnPathAsync(const vector<Vector3r>& path, float velocity, float timeout_sec = Utils::max<float>(),
-        DrivetrainType drivetrain = DrivetrainType::MaxDegreeOfFreedom, const YawMode& yaw_mode = YawMode(), 
+        PlaneDrivetrainType drivetrain = PlaneDrivetrainType::MaxDegreeOfFreedom, const YawMode& yaw_mode = YawMode(), 
         float lookahead = -1, float adaptive_lookahead = 1, const std::string& vehicle_name = "");
     PlaneRpcLibClient* moveToPositionAsync(float x, float y, float z, float velocity, float timeout_sec = Utils::max<float>(),
-        DrivetrainType drivetrain = DrivetrainType::MaxDegreeOfFreedom, const YawMode& yaw_mode = YawMode(), 
+        PlaneDrivetrainType drivetrain = PlaneDrivetrainType::MaxDegreeOfFreedom, const YawMode& yaw_mode = YawMode(), 
         float lookahead = -1, float adaptive_lookahead = 1, const std::string& vehicle_name = "");
     PlaneRpcLibClient* moveToZAsync(float z, float velocity, float timeout_sec = Utils::max<float>(),
         const YawMode& yaw_mode = YawMode(), float lookahead = -1, float adaptive_lookahead = 1, const std::string& vehicle_name = "");
     PlaneRpcLibClient* moveByManualAsync(float vx_max, float vy_max, float z_min, float duration,
-        DrivetrainType drivetrain = DrivetrainType::MaxDegreeOfFreedom, const YawMode& yaw_mode = YawMode(), const std::string& vehicle_name = "");
+        PlaneDrivetrainType drivetrain = PlaneDrivetrainType::MaxDegreeOfFreedom, const YawMode& yaw_mode = YawMode(), const std::string& vehicle_name = "");
     PlaneRpcLibClient* rotateToYawAsync(float yaw, float timeout_sec = Utils::max<float>(), float margin = 5, const std::string& vehicle_name = "");
     PlaneRpcLibClient* rotateByYawRateAsync(float yaw_rate, float duration, const std::string& vehicle_name = "");
     PlaneRpcLibClient* hoverAsync(const std::string& vehicle_name = "");

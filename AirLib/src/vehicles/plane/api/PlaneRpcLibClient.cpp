@@ -88,7 +88,7 @@ PlaneRpcLibClient* PlaneRpcLibClient::moveByAngleThrottleAsync(float pitch, floa
 }
 
 PlaneRpcLibClient* PlaneRpcLibClient::moveByVelocityAsync(float vx, float vy, float vz, float duration, 
-    DrivetrainType drivetrain, const YawMode& yaw_mode, const std::string& vehicle_name)
+    PlaneDrivetrainType drivetrain, const YawMode& yaw_mode, const std::string& vehicle_name)
 {
     pimpl_->last_future = static_cast<rpc::client*>(getClient())->async_call("moveByVelocity", vx, vy, vz, duration, 
         drivetrain, PlaneRpcLibAdapators::YawMode(yaw_mode), vehicle_name);
@@ -96,7 +96,7 @@ PlaneRpcLibClient* PlaneRpcLibClient::moveByVelocityAsync(float vx, float vy, fl
 }
 
 PlaneRpcLibClient* PlaneRpcLibClient::moveByVelocityZAsync(float vx, float vy, float z, float duration, 
-    DrivetrainType drivetrain, const YawMode& yaw_mode, const std::string& vehicle_name)
+    PlaneDrivetrainType drivetrain, const YawMode& yaw_mode, const std::string& vehicle_name)
 {
     pimpl_->last_future = static_cast<rpc::client*>(getClient())->async_call("moveByVelocityZ", vx, vy, z, duration, 
         drivetrain, PlaneRpcLibAdapators::YawMode(yaw_mode), vehicle_name);
@@ -104,7 +104,7 @@ PlaneRpcLibClient* PlaneRpcLibClient::moveByVelocityZAsync(float vx, float vy, f
 }
 
 PlaneRpcLibClient* PlaneRpcLibClient::moveOnPathAsync(const vector<Vector3r>& path, float velocity, float duration, 
-    DrivetrainType drivetrain, const YawMode& yaw_mode, float lookahead, float adaptive_lookahead, const std::string& vehicle_name)
+    PlaneDrivetrainType drivetrain, const YawMode& yaw_mode, float lookahead, float adaptive_lookahead, const std::string& vehicle_name)
 {
     vector<PlaneRpcLibAdapators::Vector3r> conv_path;
     PlaneRpcLibAdapators::from(path, conv_path);
@@ -114,7 +114,7 @@ PlaneRpcLibClient* PlaneRpcLibClient::moveOnPathAsync(const vector<Vector3r>& pa
 }
 
 PlaneRpcLibClient* PlaneRpcLibClient::moveToPositionAsync(float x, float y, float z, float velocity, float timeout_sec, 
-    DrivetrainType drivetrain, const YawMode& yaw_mode, float lookahead, float adaptive_lookahead, const std::string& vehicle_name)
+    PlaneDrivetrainType drivetrain, const YawMode& yaw_mode, float lookahead, float adaptive_lookahead, const std::string& vehicle_name)
 {
     pimpl_->last_future = static_cast<rpc::client*>(getClient())->async_call("moveToPosition", x, y, z, velocity, timeout_sec, 
         drivetrain, PlaneRpcLibAdapators::YawMode(yaw_mode), lookahead, adaptive_lookahead, vehicle_name);
@@ -130,7 +130,7 @@ PlaneRpcLibClient* PlaneRpcLibClient::moveToZAsync(float z, float velocity, floa
 }
 
 PlaneRpcLibClient* PlaneRpcLibClient::moveByManualAsync(float vx_max, float vy_max, float z_min, float duration, 
-    DrivetrainType drivetrain, const YawMode& yaw_mode, const std::string& vehicle_name)
+    PlaneDrivetrainType drivetrain, const YawMode& yaw_mode, const std::string& vehicle_name)
 {
     pimpl_->last_future = static_cast<rpc::client*>(getClient())->async_call("moveByManual", vx_max, vy_max, z_min, duration, 
         drivetrain, PlaneRpcLibAdapators::YawMode(yaw_mode), vehicle_name);

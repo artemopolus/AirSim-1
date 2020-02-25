@@ -5,7 +5,7 @@
 #include "common/Common.hpp"
 #include "common/CommonStructs.hpp"
 #include "physics/Kinematics.hpp"
-#include "vehicles/multirotor/api/MultirotorCommon.hpp"
+//#include "vehicles/multirotor/api/MultirotorCommon.hpp"
 /*
 
 In this time, it's only cope of MultiRotorCommon.hpp with changing name
@@ -13,11 +13,14 @@ In this time, it's only cope of MultiRotorCommon.hpp with changing name
 */
 namespace msr {
 	namespace airlib {
-
-		/*enum class LandedState : uint {
+		enum class PlaneDrivetrainType {
+			MaxDegreeOfFreedom = 0,
+			ForwardOnly
+		};
+		enum class PlaneLandedState : uint {
 		Landed = 0,
 		Flying = 1
-	};*/
+		};
 		struct PlaneApiParams {
 			PlaneApiParams() {};
 			//what is the breaking distance for given velocity?
@@ -46,7 +49,7 @@ namespace msr {
 			Kinematics::State kinematics_estimated;
 			GeoPoint gps_location;
 			uint64_t timestamp;
-			LandedState landed_state;
+			PlaneLandedState landed_state;
 			RCData rc_data;
 			bool ready;  // indicates drone is ready for commands
 			std::string ready_message;  // can show error message if drone is not reachable over the network or is not responding
@@ -56,7 +59,7 @@ namespace msr {
 			{}
 			PlaneState(const CollisionInfo& collision_val, const Kinematics::State& kinematics_estimated_val,
 				const GeoPoint& gps_location_val, uint64_t timestamp_val,
-				LandedState landed_state_val, const RCData& rc_data_val, bool ready_val, const std::string& message, bool can_arm_val)
+				PlaneLandedState landed_state_val, const RCData& rc_data_val, bool ready_val, const std::string& message, bool can_arm_val)
 				: collision(collision_val), kinematics_estimated(kinematics_estimated_val),
 				gps_location(gps_location_val), timestamp(timestamp_val),
 				landed_state(landed_state_val), rc_data(rc_data_val), ready(ready_val), ready_message(message), can_arm(can_arm_val)

@@ -243,10 +243,10 @@ namespace msr {
 				return VectorMath::toQuaternion(current_state_.attitude.pitch, current_state_.attitude.roll, current_state_.attitude.yaw);
 			}
 
-			virtual LandedState getLandedState() const override
+			virtual PlaneLandedState getLandedState() const override
 			{
 				updateState();
-				return current_state_.controls.landed ? LandedState::Landed : LandedState::Flying;
+				return current_state_.controls.landed ? PlaneLandedState::Landed : PlaneLandedState::Flying;
 			}
 
 			virtual real_T getActuation(unsigned int rotor_index) const override

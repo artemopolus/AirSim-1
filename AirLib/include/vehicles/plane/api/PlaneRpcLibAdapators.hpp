@@ -8,7 +8,7 @@
 #include "common/CommonStructs.hpp"
 #include "api/RpcLibAdapatorsBase.hpp"
 #include "vehicles/plane/api/PlaneCommon.hpp"
-#include "vehicles/multirotor/api/MultirotorCommon.hpp"
+//#include "vehicles/multirotor/api/MultirotorCommon.hpp"
 #include "vehicles/plane/api/PlaneApiBase.hpp"
 #include "common/ImageCaptureBase.hpp"
 #include "safety/SafetyEval.hpp"
@@ -46,7 +46,7 @@ public:
         KinematicsState kinematics_true;
         GeoPoint gps_location;
         uint64_t timestamp;
-        LandedState landed_state;
+        PlaneLandedState landed_state;
         RCData rc_data;
         bool ready;
         std::string ready_message;
@@ -81,8 +81,8 @@ public:
 
 }} //namespace
 
-// MSGPACK_ADD_ENUM(msr::airlib::PlaneDrivetrainType);
-// MSGPACK_ADD_ENUM(msr::airlib::PlaneLandedState);
+MSGPACK_ADD_ENUM(msr::airlib::PlaneDrivetrainType);
+MSGPACK_ADD_ENUM(msr::airlib::PlaneLandedState);
 
 
 #endif

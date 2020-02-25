@@ -33,7 +33,7 @@ namespace msr {
 
 			bool ret = moveToPosition(kinematics.pose.position.x(),
 				kinematics.pose.position.y(), kinematics.pose.position.z() + getTakeoffZ(),
-				0.5f, timeout_sec, DrivetrainType::MaxDegreeOfFreedom, YawMode::Zero(), -1, 1);
+				0.5f, timeout_sec, PlaneDrivetrainType::MaxDegreeOfFreedom, YawMode::Zero(), -1, 1);
 
 			//last command is to hold on to position
 			//commandPosition(0, 0, getTakeoffZ(), YawMode::Zero());
@@ -70,7 +70,7 @@ namespace msr {
 		{
 			SingleTaskCall lock(this);
 
-			return moveToPosition(0, 0, 0, 0.5f, timeout_sec, DrivetrainType::MaxDegreeOfFreedom, YawMode::Zero(), -1, 1);
+			return moveToPosition(0, 0, 0, 0.5f, timeout_sec, PlaneDrivetrainType::MaxDegreeOfFreedom, YawMode::Zero(), -1, 1);
 		}
 
 		bool PlaneApiBase::moveByAngleZ(float pitch, float roll, float z, float yaw, float duration)
@@ -99,7 +99,7 @@ namespace msr {
 			}, duration).isTimeout();
 		}
 
-		bool PlaneApiBase::moveByVelocity(float vx, float vy, float vz, float duration, DrivetrainType drivetrain, const YawMode& yaw_mode)
+		bool PlaneApiBase::moveByVelocity(float vx, float vy, float vz, float duration, PlaneDrivetrainType drivetrain, const YawMode& yaw_mode)
 		{
 			SingleTaskCall lock(this);
 
@@ -115,7 +115,7 @@ namespace msr {
 			}, duration).isTimeout();
 		}
 
-		bool PlaneApiBase::moveByVelocityZ(float vx, float vy, float z, float duration, DrivetrainType drivetrain, const YawMode& yaw_mode)
+		bool PlaneApiBase::moveByVelocityZ(float vx, float vy, float z, float duration, PlaneDrivetrainType drivetrain, const YawMode& yaw_mode)
 		{
 			SingleTaskCall lock(this);
 
@@ -131,7 +131,7 @@ namespace msr {
 			}, duration).isTimeout();
 		}
 
-		bool PlaneApiBase::moveOnPath(const vector<Vector3r>& path, float velocity, float timeout_sec, DrivetrainType drivetrain, const YawMode& yaw_mode,
+		bool PlaneApiBase::moveOnPath(const vector<Vector3r>& path, float velocity, float timeout_sec, PlaneDrivetrainType drivetrain, const YawMode& yaw_mode,
 			float lookahead, float adaptive_lookahead)
 		{
 			SingleTaskCall lock(this);
@@ -143,7 +143,7 @@ namespace msr {
 			}
 
 			//validate yaw mode
-			if (drivetrain == DrivetrainType::ForwardOnly && yaw_mode.is_rate)
+			if (drivetrain == PlaneDrivetrainType::ForwardOnly && yaw_mode.is_rate)
 				throw std::invalid_argument("Yaw cannot be specified as rate if drivetrain is ForwardOnly");
 
 			//validate and set auto-lookahead value
@@ -311,7 +311,7 @@ namespace msr {
 			return waiter.isComplete();
 		}
 
-		bool PlaneApiBase::moveToPosition(float x, float y, float z, float velocity, float timeout_sec, DrivetrainType drivetrain,
+		bool PlaneApiBase::moveToPosition(float x, float y, float z, float velocity, float timeout_sec, PlaneDrivetrainType drivetrain,
 			const YawMode& yaw_mode, float lookahead, float adaptive_lookahead)
 		{
 			SingleTaskCall lock(this);
@@ -327,10 +327,10 @@ namespace msr {
 
 			Vector2r cur_xy(getPosition().x(), getPosition().y());
 			vector<Vector3r> path{ Vector3r(cur_xy.x(), cur_xy.y(), z) };
-			return moveOnPath(path, velocity, timeout_sec, DrivetrainType::MaxDegreeOfFreedom, yaw_mode, lookahead, adaptive_lookahead);
+			return moveOnPath(path, velocity, timeout_sec, PlaneDrivetrainType::MaxDegreeOfFreedom, yaw_mode, lookahead, adaptive_lookahead);
 		}
 
-		bool PlaneApiBase::moveByManual(float vx_max, float vy_max, float z_min, float duration, DrivetrainType drivetrain, const YawMode& yaw_mode)
+		bool PlaneApiBase::moveByManual(float vx_max, float vy_max, float z_min, float duration, PlaneDrivetrainType drivetrain, const YawMode& yaw_mode)
 		{
 			SingleTaskCall lock(this);
 
@@ -533,7 +533,7 @@ namespace msr {
 			return rc_data_trims_;
 		}
 
-		void PlaneApiBase::moveToPathPosition(const Vector3r& dest, float velocity, DrivetrainType drivetrain, /* pass by value */ YawMode yaw_mode, float last_z)
+		void PlaneApiBase::moveToPathPosition(const Vector3r& dest, float velocity, PlaneDrivetrainType drivetrain, /* pass by value */ YawMode yaw_mode, float last_z)
 		{
 			unused(last_z);
 			//validate dest
@@ -675,10 +675,10 @@ namespace msr {
 			return next_dist;
 		}
 
-		void PlaneApiBase::adjustYaw(const Vector3r& heading, DrivetrainType drivetrain, YawMode& yaw_mode)
+		void PlaneApiBase::adjustYaw(const Vector3r& heading, PlaneDrivetrainType drivetrain, YawMode& yaw_mode)
 		{
 			//adjust yaw for the direction of travel in forward-only mode
-			if (drivetrain == DrivetrainType::ForwardOnly && !yaw_mode.is_rate) {
+			if (drivetrain == PlaneDrivetrainType::ForwardOnly && !yaw_mode.is_rate) {
 				if (heading.norm() > getDistanceAccuracy()) {
 					yaw_mode.yaw_or_rate = yaw_mode.yaw_or_rate + (std::atan2(heading.y(), heading.x()) * 180 / M_PIf);
 					yaw_mode.yaw_or_rate = VectorMath::normalizeAngle(yaw_mode.yaw_or_rate);
@@ -689,7 +689,7 @@ namespace msr {
 			//else no adjustment needed
 		}
 
-		void PlaneApiBase::adjustYaw(float x, float y, DrivetrainType drivetrain, YawMode& yaw_mode) {
+		void PlaneApiBase::adjustYaw(float x, float y, PlaneDrivetrainType drivetrain, YawMode& yaw_mode) {
 			adjustYaw(Vector3r(x, y, 0), drivetrain, yaw_mode);
 		}
 

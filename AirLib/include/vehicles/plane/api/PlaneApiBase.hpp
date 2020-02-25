@@ -35,7 +35,7 @@ namespace msr {
 
 			/************************* State APIs *********************************/
 			virtual Kinematics::State getKinematicsEstimated() const = 0;
-			virtual LandedState getLandedState() const = 0;
+			virtual PlaneLandedState getLandedState() const = 0;
 			virtual GeoPoint getGpsLocation() const = 0;
 			virtual const PlaneApiParams& getPlaneApiParams() const = 0;
 
@@ -86,15 +86,15 @@ namespace msr {
 
 			virtual bool moveByAngleZ(float pitch, float roll, float z, float yaw, float duration);
 			virtual bool moveByAngleThrottle(float pitch, float roll, float throttle, float yaw_rate, float duration);
-			virtual bool moveByVelocity(float vx, float vy, float vz, float duration, DrivetrainType drivetrain, const YawMode& yaw_mode);
-			virtual bool moveByVelocityZ(float vx, float vy, float z, float duration, DrivetrainType drivetrain, const YawMode& yaw_mode);
-			virtual bool moveOnPath(const vector<Vector3r>& path, float velocity, float timeout_sec, DrivetrainType drivetrain, const YawMode& yaw_mode,
+			virtual bool moveByVelocity(float vx, float vy, float vz, float duration, PlaneDrivetrainType drivetrain, const YawMode& yaw_mode);
+			virtual bool moveByVelocityZ(float vx, float vy, float z, float duration, PlaneDrivetrainType drivetrain, const YawMode& yaw_mode);
+			virtual bool moveOnPath(const vector<Vector3r>& path, float velocity, float timeout_sec, PlaneDrivetrainType drivetrain, const YawMode& yaw_mode,
 				float lookahead, float adaptive_lookahead);
-			virtual bool moveToPosition(float x, float y, float z, float velocity, float timeout_sec, DrivetrainType drivetrain,
+			virtual bool moveToPosition(float x, float y, float z, float velocity, float timeout_sec, PlaneDrivetrainType drivetrain,
 				const YawMode& yaw_mode, float lookahead, float adaptive_lookahead);
 			virtual bool moveToZ(float z, float velocity, float timeout_sec, const YawMode& yaw_mode,
 				float lookahead, float adaptive_lookahead);
-			virtual bool moveByManual(float vx_max, float vy_max, float z_min, float duration, DrivetrainType drivetrain, const YawMode& yaw_mode);
+			virtual bool moveByManual(float vx_max, float vy_max, float z_min, float duration, PlaneDrivetrainType drivetrain, const YawMode& yaw_mode);
 			virtual bool rotateToYaw(float yaw, float timeout_sec, float margin);
 			virtual bool rotateByYawRate(float yaw_rate, float duration);
 			virtual bool hover();
@@ -304,9 +304,9 @@ namespace msr {
 		private: //methods
 			float setNextPathPosition(const vector<Vector3r>& path, const vector<PathSegment>& path_segs,
 				const PathPosition& cur_path_loc, float next_dist, PathPosition& next_path_loc);
-			void adjustYaw(const Vector3r& heading, DrivetrainType drivetrain, YawMode& yaw_mode);
-			void adjustYaw(float x, float y, DrivetrainType drivetrain, YawMode& yaw_mode);
-			void moveToPathPosition(const Vector3r& dest, float velocity, DrivetrainType drivetrain, /* pass by value */ YawMode yaw_mode, float last_z);
+			void adjustYaw(const Vector3r& heading, PlaneDrivetrainType drivetrain, YawMode& yaw_mode);
+			void adjustYaw(float x, float y, PlaneDrivetrainType drivetrain, YawMode& yaw_mode);
+			void moveToPathPosition(const Vector3r& dest, float velocity, PlaneDrivetrainType drivetrain, /* pass by value */ YawMode yaw_mode, float last_z);
 			bool isYawWithinMargin(float yaw_target, float margin) const;
 
 		private: //variables
