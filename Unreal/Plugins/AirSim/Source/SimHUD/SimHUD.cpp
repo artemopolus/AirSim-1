@@ -294,7 +294,7 @@ void ASimHUD::createSimMode()
     if (simmode_name == "Multirotor")
         simmode_ = this->GetWorld()->SpawnActor<ASimModeWorldMultiRotor>(FVector::ZeroVector, 
             FRotator::ZeroRotator, simmode_spawn_params);
-    if (simmode_name == "Plane"){
+    else if (simmode_name == "Plane"){
         simmode_ = this->GetWorld()->SpawnActor<ASimModeWorldPlane>(FVector::ZeroVector, 
             FRotator::ZeroRotator, simmode_spawn_params);
     }
