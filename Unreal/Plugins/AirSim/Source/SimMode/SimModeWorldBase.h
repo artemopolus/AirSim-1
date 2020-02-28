@@ -7,6 +7,7 @@
 #include "physics/FastPhysicsEngine.hpp"
 #include "physics/World.hpp"
 #include "physics/PhysicsWorld.hpp"
+#include "physics/ExPhysicsEngine.hpp" /* наша физика */
 #include "common/StateReporterWrapper.hpp"
 #include "api/ApiServerBase.hpp"
 #include "SimModeBase.h"

@@ -509,8 +509,11 @@ private:
 
         physics_engine_name = settings_json.getString("PhysicsEngineName", "");
         if (physics_engine_name == "") {
-            if (simmode_name == "Multirotor")
-                physics_engine_name = "FastPhysicsEngine";
+			if (simmode_name == "Multirotor")
+				physics_engine_name = "FastPhysicsEngine";
+			/* Физика наша */
+			else if (simmode_name == "Plane")
+				physics_engine_name = "ExPhysicsEngine";
             else
                 physics_engine_name = "PhysX"; //this value is only informational for now
         }
@@ -816,10 +819,9 @@ private:
         pawn_paths.emplace("DefaultComputerVision",
             PawnPath("Class'/AirSim/Blueprints/BP_ComputerVisionPawn.BP_ComputerVisionPawn_C'"));
 		/* включаем наш самолет в pawn path */
-		//TODO : valid path plz!!!!!
 		pawn_paths.emplace(
 			"DefaultPlane", /* как и в SimModeWorldPlane */
-			PawnPath("Class'/AirSim/Blueprints/BP_PlaneFlyingPawn.BP_PlaneFlyingPawn_C'") /* путь*/
+			PawnPath("Class'/Game/BP_PlaneFlyingPawn.BP_PlaneFlyingPawn_C'") /* путь к Content, куда импортировали fbx модели объектов*/
 		);
 
     }

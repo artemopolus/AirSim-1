@@ -63,6 +63,17 @@ std::unique_ptr<ASimModeWorldBase::PhysicsEngineBase> ASimModeWorldBase::createP
             physics_engine.reset(new msr::airlib::FastPhysicsEngine());
         }
     }
+    /* Включаем нашу физику по аналогии    */
+    else if (physics_engine_name == "ExPhysicsEngine"){
+        msr::airlib::Settings ex_phys_settings;
+        if (msr::airlib::Settings::singleton().getChild("ExPhysicsEngine", ex_phys_settings)) {
+            physics_engine.reset(new msr::airlib::ExPhysicsEngine(ex_phys_settings.getBool("EnableGroundLock", true)));
+        }
+        else {
+            physics_engine.reset(new msr::airlib::ExPhysicsEngine());
+        }
+    }
+    /* ----------------------------------- */
     else {
         physics_engine.reset();
         UAirBlueprintLib::LogMessageString("Unrecognized physics engine name: ",  physics_engine_name, LogDebugLevel::Failure);
