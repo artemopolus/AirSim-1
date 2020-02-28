@@ -53,8 +53,8 @@ namespace msr {
 				turning_direction_ = turning_direction;
 				environment_ = environment;
 				air_density_sea_level_ = EarthUtils::getAirDensity(0.0f);
-				int initial_input = 1500;
-				int initial_output = 1500;
+				real_T initial_input = 1500;
+				real_T initial_output = 1500;
 				control_signal_filter_.initialize(params_.control_signal_filter_tc, initial_input, initial_output);
 
 				PhysicsBodyVertex::initialize(position, normal);   //call base initializer

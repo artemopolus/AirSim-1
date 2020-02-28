@@ -821,7 +821,7 @@ private:
 		/* включаем наш самолет в pawn path */
 		pawn_paths.emplace(
 			"DefaultPlane", /* как и в SimModeWorldPlane */
-			PawnPath("Class'/Game/BP_PlaneFlyingPawn.BP_PlaneFlyingPawn_C'") /* путь к Content, куда импортировали fbx модели объектов*/
+			PawnPath("Class'/Game/StartPlane/BP_PlaneFlyingPawn.BP_PlaneFlyingPawn_C'") /* путь к Content, куда импортировали fbx модели объектов*/
 		);
 
     }
