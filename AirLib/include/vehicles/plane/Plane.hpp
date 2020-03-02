@@ -163,8 +163,11 @@ namespace msr {
 			{
 				rudders.clear();
 				const PlaneParams::RotorPose& rotor_pose = params.getParams().rotor_poses.at(1);
-				rudders.emplace_back(rotor_pose.position, rotor_pose.normal, rotor_pose.direction,
-										params.getParams().rotor_params, environment, 1);
+				msr::airlib::RudderTurningDirection dir = msr::airlib::RudderTurningDirection::RudderTurningDirectionCCW;
+				if (rotor_pose.direction == msr::airlib::RotorTurningDirection::RotorTurningDirectionCW)
+					dir = RudderTurningDirection::RudderTurningDirectionCW;
+				rudders.emplace_back(rotor_pose.position, rotor_pose.normal, dir,
+										params.getParams().rudder_params, environment, 1);
 			}
 
 			void reportSensors(PlaneParams& params, StateReporter& reporter)
