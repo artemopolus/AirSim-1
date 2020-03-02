@@ -31,7 +31,7 @@ public: //types
     static constexpr char const * kVehicleTypePhysXCar = "physxcar";
     static constexpr char const * kVehicleTypeComputerVision = "computervision";
 	// объ€вл€ем самолетик
-	static constexpr char const * kVehicleTypePlane = "plane";
+	static constexpr char const * kVehicleTypePlane = "px4plane";
 
     static constexpr char const * kVehicleInertialFrame = "VehicleInertialFrame";
     static constexpr char const * kSensorLocalFrame = "SensorLocalFrame";
@@ -524,8 +524,11 @@ private:
         std::string view_mode_string = settings_json.getString("ViewMode", "");
 
         if (view_mode_string == "") {
-            if (simmode_name == "Multirotor")
-                view_mode_string = "FlyWithMe";
+			if (simmode_name == "Multirotor")
+				view_mode_string = "FlyWithMe";
+			/* Plane! */
+			else if (simmode_name == "Plane")
+				view_mode_string = "FlyWithMe";
             else if (simmode_name == "ComputerVision")
                 view_mode_string = "Fpv";
             else
@@ -557,7 +560,7 @@ private:
         Settings rc_json;
         if (settings_json.getChild("RC", rc_json)) {
             rc_setting.remote_control_id = rc_json.getInt("RemoteControlID",
-                simmode_name == "Multirotor" ? 0 : -1);
+                ((simmode_name == "Multirotor")||(simmode_name == "Plane")) ? 0 : -1);
             rc_setting.allow_api_when_disconnected = rc_json.getBool("AllowAPIWhenDisconnected",
                 rc_setting.allow_api_when_disconnected);
         }
@@ -1110,7 +1113,7 @@ private:
             clock_type = "ScalableClock";
 
             //override if multirotor simmode with simple_flight
-            if (simmode_name == "Multirotor") {
+            if ((simmode_name == "Multirotor")||(simmode_name == "Plane")) {
                 //TODO: this won't work if simple_flight and PX4 is combined together!
 
                 //for multirotors we select steppable fixed interval clock unless we have
@@ -1284,6 +1287,12 @@ private:
             sensors["gps"] = createSensorSetting(SensorBase::SensorType::Gps, "gps", true);
             sensors["barometer"] = createSensorSetting(SensorBase::SensorType::Barometer, "barometer", true);
         }
+		else if (simmode_name == "Plane") {
+			sensors["imu"] = createSensorSetting(SensorBase::SensorType::Imu, "imu", true);
+			sensors["magnetometer"] = createSensorSetting(SensorBase::SensorType::Magnetometer, "magnetometer", true);
+			sensors["gps"] = createSensorSetting(SensorBase::SensorType::Gps, "gps", true);
+			sensors["barometer"] = createSensorSetting(SensorBase::SensorType::Barometer, "barometer", true);
+		}
         else if (simmode_name == "Car") {
             sensors["gps"] = createSensorSetting(SensorBase::SensorType::Gps, "gps", true);
         }
