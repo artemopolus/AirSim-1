@@ -96,7 +96,7 @@ void APlaneFlyingPawn::setRotorSpeed(const std::vector<PlanePawnEvents::RotorInf
     for(auto rudder_index = 0; rudder_index < rudder_count; ++rudder_index){
         auto rot = rudder_orientation_[rudder_index];
         if (rot != nullptr){
-            float angle = rotor_infos.at(rotor_count + rudder_index).rotor_speed
+            float angle = rotor_infos.at(rotor_count + rudder_index).rotor_speed;
             rot->SetRelativeRotation(FRotator(angle,0,0));
         }
     }
