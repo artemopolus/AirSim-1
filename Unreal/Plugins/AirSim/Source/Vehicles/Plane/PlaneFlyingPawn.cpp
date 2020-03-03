@@ -16,6 +16,9 @@ void APlaneFlyingPawn::BeginPlay()
     for (auto i = 0; i < rotor_count; ++i) {
         rotating_movements_[i] = UAirBlueprintLib::GetActorComponent<URotatingMovementComponent>(this, TEXT("Rotation") + FString::FromInt(i));
     }
+    for (auto i = 0; i < rudder_count; ++i) {
+        rudder_orientation_[i] = UAirBlueprintLib::GetActorComponent<USceneComponent>(this, TEXT("RudderHandle") + FString::FromInt(i));
+    }
 }
 
 void APlaneFlyingPawn::initializeForBeginPlay()
@@ -81,12 +84,20 @@ void APlaneFlyingPawn::NotifyHit(class UPrimitiveComponent* MyComp, class AActor
 
 void APlaneFlyingPawn::setRotorSpeed(const std::vector<PlanePawnEvents::RotorInfo>& rotor_infos)
 {
-    for (auto rotor_index = 0; rotor_index < rotor_infos.size(); ++rotor_index) {
+    for (auto rotor_index = 0; rotor_index < rotor_count; ++rotor_index) {
         auto comp = rotating_movements_[rotor_index];
         if (comp != nullptr) {
             comp->RotationRate.Yaw = 
                 rotor_infos.at(rotor_index).rotor_speed * rotor_infos.at(rotor_index).rotor_direction *
                 180.0f / M_PIf * RotatorFactor;
+        }
+    }
+    //TODO: fix this!!!!! 
+    for(auto rudder_index = 0; rudder_index < rudder_count; ++rudder_index){
+        auto rot = rudder_orientation_[rudder_index];
+        if (rot != nullptr){
+            float angle = rotor_infos.at(rotor_count + rudder_index).rotor_speed
+            rot->SetRelativeRotation(FRotator(angle,0,0));
         }
     }
 }

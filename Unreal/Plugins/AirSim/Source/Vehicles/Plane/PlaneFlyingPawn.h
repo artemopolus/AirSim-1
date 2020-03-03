@@ -8,6 +8,8 @@
 #include "common/common_utils/UniqueValueMap.hpp"
 #include "PlanePawnEvents.h"
 
+#include "common/Common.hpp"
+
 #include "PlaneFlyingPawn.generated.h"
 
 UCLASS()
@@ -39,7 +41,10 @@ public:
 
 private: //variables
     //Unreal components
-    static constexpr size_t rotor_count = 4;
+    static constexpr size_t rotor_count = 1;
+    /* наши рули */
+    static constexpr size_t rudder_count = 2;
+
     UPROPERTY() APIPCamera* camera_front_left_;
     UPROPERTY() APIPCamera* camera_front_right_;
     UPROPERTY() APIPCamera* camera_front_center_;
@@ -47,6 +52,9 @@ private: //variables
     UPROPERTY() APIPCamera* camera_bottom_center_;
 
     UPROPERTY() URotatingMovementComponent* rotating_movements_[rotor_count];
+
+    /* система вращения */
+    UPROPERTY() USceneComponent* rudder_orientation_[rudder_count];
 
     PlanePawnEvents pawn_events_;
 };
