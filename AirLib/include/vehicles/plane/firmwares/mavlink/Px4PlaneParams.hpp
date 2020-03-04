@@ -70,7 +70,9 @@ namespace msr {
 				params.body_box.x() = 0.180f; params.body_box.y() = 0.11f; params.body_box.z() = 0.040f;
 				real_T rotor_z = 2.5f / 100;
 				initializeSimplePlane(params.rotor_poses, params.rotor_count, 
-										params.rudder_poses, params.rudder_count, arm_length.data(), rotor_z);
+										//params.rudder_poses, /* нужно ли вообще отдельный класс? */
+										params.rudder_count,
+										arm_length.data(), rotor_z);
 				//compute inertia matrix
 				computeInertiaMatrix(params.inertia, params.body_box, params.rotor_poses, box_mass, motor_assembly_weight);
 			}

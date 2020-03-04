@@ -93,7 +93,7 @@ namespace msr {
 			//physics body interface
 			virtual uint wrenchVertexCount() const  override
 			{
-				return params_->getParams().rotor_count;
+				return (params_->getParams().rotor_count + params_->getParams().rudder_count);
 			}
 			virtual PhysicsBodyVertex& getWrenchVertex(uint index)  override
 			{
@@ -131,11 +131,6 @@ namespace msr {
 				return rotors_.at(rotor_index).getOutput();
 			}
 
-			Rudder::Output getRudderOutput(uint rudder_index) const
-			{
-				return rudder_.at(rudder_index).getOutput();
-			}
-
 			virtual ~Plane() = default;
 
 		private: //methods
@@ -144,7 +139,7 @@ namespace msr {
 				PhysicsBody::initialize(params_->getParams().mass, params_->getParams().inertia, kinematics, environment);
 
 				createRotors(*params_, rotors_, environment);
-				createRudders(*params_, rudder_, environment);
+				
 				createDragVertices();
 
 				initSensors(*params_, getKinematics(), getEnvironment());
@@ -154,20 +149,10 @@ namespace msr {
 			{
 				rotors.clear();
 				//for each rotor pose
-				for (uint rotor_index = 0; rotor_index < params.getParams().rotor_count; ++rotor_index) {
+				for (uint rotor_index = 0; rotor_index < (params.getParams().rotor_count + params.getParams().rudder_count ); ++rotor_index) {
 					const PlaneParams::RotorPose& rotor_pose = params.getParams().rotor_poses.at(rotor_index);
 					rotors.emplace_back(rotor_pose.position, rotor_pose.normal, rotor_pose.direction, params.getParams().rotor_params, environment, rotor_index);
 				}
-			}
-			static void createRudders(const PlaneParams& params, vector<Rudder>& rudders, const Environment* environment)
-			{
-				rudders.clear();
-				const PlaneParams::RotorPose& rotor_pose = params.getParams().rotor_poses.at(1);
-				msr::airlib::RudderTurningDirection dir = msr::airlib::RudderTurningDirection::RudderTurningDirectionCCW;
-				if (rotor_pose.direction == msr::airlib::RotorTurningDirection::RotorTurningDirectionCW)
-					dir = RudderTurningDirection::RudderTurningDirectionCW;
-				rudders.emplace_back(rotor_pose.position, rotor_pose.normal, dir,
-										params.getParams().rudder_params, environment, 1);
 			}
 
 			void reportSensors(PlaneParams& params, StateReporter& reporter)
@@ -226,9 +211,7 @@ namespace msr {
 			PlaneParams* params_;
 
 			//let us be the owner of rotors object
-			vector<Rotor> rotors_;
-			// ѕомимо роторов здесь доступны и рули
-			vector<Rudder> rudder_;
+			vector<Rotor> rotors_;   // ѕомимо роторов здесь доступны и рули
 			vector<PhysicsBodyVertex> drag_vertices_;
 			
 			std::unique_ptr<Environment> environment_;

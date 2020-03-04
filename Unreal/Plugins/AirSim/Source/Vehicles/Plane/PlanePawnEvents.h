@@ -11,11 +11,18 @@
 class PlanePawnEvents : public PawnEvents {
 public: //types
     typedef msr::airlib::real_T real_T;
+
+    enum class ActuatorType :int {
+            None = 0,
+            Rotor = 1,
+            Rudder = 2
+        };
     struct RotorInfo {
         real_T rotor_speed = 0;
         int rotor_direction = 0;
         real_T rotor_thrust = 0;
         real_T rotor_control_filtered = 0;
+        ActuatorType TypeInfo = ActuatorType::Rotor; /* информация о движке */
     };
 
     typedef common_utils::Signal<const std::vector<RotorInfo>&> ActuatorsSignal;

@@ -36,7 +36,7 @@ namespace msr {
 				vector<RotorPose> rotor_poses;
 				/* Рули */
 				uint rudder_count;
-				vector<RotorPose> rudder_poses;
+				//vector<RotorPose> rudder_poses;
 				real_T mass;
 				Matrix3x3r inertia;
 				Vector3r body_box;
@@ -108,7 +108,7 @@ namespace msr {
 			static void initializeSimplePlane(
 				vector<RotorPose>& rotor_poses, /* роторы */
 				uint rotor_count, /* TODO должно быть один сейчас */
-				vector<RotorPose>& rudder_poses, /* рули */
+				//vector<RotorPose>& rudder_poses, /* рули */
 				uint rudder_count, /* TODO должно быть два сейчас */
 				real_T arm_lengths[], /* расстояния */
 				real_T rotor_z /* z relative to center of gravity */
@@ -129,7 +129,7 @@ namespace msr {
 				if (rotor_count == 1 && rudder_count == 2)
 				{
 					rotor_poses.clear();
-					rudder_poses.clear();
+					//rudder_poses.clear();
 					Quaternionr hexa_rot30(AngleAxisr(M_PIf / 6, unit_z)); // 30 degrees
 					Quaternionr hexa_rot60(AngleAxisr(M_PIf / 3, unit_z)); // 60 degrees
 					Quaternionr no_rot(AngleAxisr(0, unit_z));
@@ -137,9 +137,9 @@ namespace msr {
 					// vectors below are rotated according to NED left hand rule (so the vectors are rotated counter clockwise).
 					rotor_poses.emplace_back(VectorMath::rotateVector(Vector3r( -arm_lengths[0], 0, rotor_z), no_rot, true),
 						forward, RotorTurningDirection::RotorTurningDirectionCW);
-					rudder_poses.emplace_back(VectorMath::rotateVector(Vector3r(0, -arm_lengths[1], rotor_z), hexa_rot30, true),
+					rotor_poses.emplace_back(VectorMath::rotateVector(Vector3r(0, -arm_lengths[1], rotor_z), hexa_rot30, true),
 						unit_z, RotorTurningDirection::RotorTurningDirectionCW);
-					rudder_poses.emplace_back(VectorMath::rotateVector(Vector3r(0, -arm_lengths[2], rotor_z), hexa_rot60, true),
+					rotor_poses.emplace_back(VectorMath::rotateVector(Vector3r(0, -arm_lengths[2], rotor_z), hexa_rot60, true),
 						unit_z, RotorTurningDirection::RotorTurningDirectionCW);
 				}
 				else
