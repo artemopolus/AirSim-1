@@ -22,7 +22,7 @@ namespace msr {
 			{
 				std::unique_ptr<PlaneParams> config;
 
-				if (vehicle_setting->vehicle_type == AirSimSettings::kVehicleTypePX4) {
+				if (vehicle_setting->vehicle_type == AirSimSettings::kVehicleTypePlane) {
 					config.reset(new Px4PlaneParams(*static_cast<const AirSimSettings::MavLinkVehicleSetting*>(vehicle_setting),
 						sensor_factory));
 				}
