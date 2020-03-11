@@ -495,6 +495,18 @@
     <ClInclude Include="include\physics\ExPhysicsEngine.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\vehicles\plane\UniForce.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vehicles\plane\UniForceParams.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vehicles\plane\UFRotorParams.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vehicles\plane\UFRotor.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\safety\ObstacleMap.cpp">

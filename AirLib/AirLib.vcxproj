@@ -183,6 +183,10 @@
     <ClInclude Include="include\vehicles\plane\PlaneParamsFactory.hpp" />
     <ClInclude Include="include\vehicles\plane\Rudder.hpp" />
     <ClInclude Include="include\vehicles\plane\RudderParams.hpp" />
+    <ClInclude Include="include\vehicles\plane\UFRotor.hpp" />
+    <ClInclude Include="include\vehicles\plane\UFRotorParams.hpp" />
+    <ClInclude Include="include\vehicles\plane\UniForce.hpp" />
+    <ClInclude Include="include\vehicles\plane\UniForceParams.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\api\RpcLibClientBase.cpp" />
