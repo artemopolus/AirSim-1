@@ -8,6 +8,7 @@
 #include "common/Common.hpp"
 #include "vehicles/multirotor/RotorParams.hpp"
 #include "Rudder.hpp"
+#include "UniForce.hpp"
 #include "sensors/SensorCollection.hpp"
 #include "sensors/SensorFactory.hpp"
 #include "vehicles/plane/api/PlaneApiBase.hpp"
@@ -32,10 +33,12 @@ namespace msr {
 
 			struct Params {
 				/*********** required parameters ***********/
-				uint rotor_count;
+				
 				vector<RotorPose> rotor_poses;
 				/* Рули */
+				uint rotor_count;
 				uint rudder_count;
+				uint wing_count;
 				//vector<RotorPose> rudder_poses;
 				real_T mass;
 				Matrix3x3r inertia;
@@ -52,6 +55,8 @@ namespace msr {
 				real_T friction = 0.5f;
 				RotorParams rotor_params;
 				RudderParams rudder_params;
+				UniForceParams force_params;
+				UFRotorParams * ufrotor_params;
 			};
 
 

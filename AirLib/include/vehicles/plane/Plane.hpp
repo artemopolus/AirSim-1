@@ -14,10 +14,15 @@
 #include "PlaneParams.hpp"
 #include <vector>
 #include "physics/PhysicsBody.hpp"
+/* наше все! */
+#include "UniForce.hpp"
+#include "UFRotor.hpp"
 
 
 namespace msr {
 	namespace airlib {
+
+
 
 		class Plane : public PhysicsBody {
 		public:
@@ -155,6 +160,34 @@ namespace msr {
 				}
 			}
 
+			static void createRuRoWs(const PlaneParams& params, vector<UniForce>& uniforces, const Environment* environment)
+			{
+				uniforces.clear();
+				uint force_count = params.getParams().rotor_count + 
+									params.getParams().rudder_count + 
+									params.getParams().wing_count;
+				for (uint i = 0; i < force_count; ++i)
+				{
+					const PlaneParams::RotorPose& rotor_pose = params.getParams().rotor_poses.at(i);
+					UniForce force;
+					if (i < params.getParams().rotor_count)
+					{
+						/*force = new UFRotor(rotor_pose.position, rotor_pose.normal, rotor_pose.direction, 
+									(UFRotorParams*)params.getParams().force_params, environment, i);*/
+						uniforces.emplace_back(new UFRotor(
+							rotor_pose.position,
+							rotor_pose.normal,
+							(UFRotorParams::UniForceDirection) rotor_pose.direction,
+							params.getParams().ufrotor_params, environment, i));
+					}
+					else if (i < (params.getParams().rotor_count + params.getParams().rudder_count)
+									&&(params.getParams().rudder_count))
+					{ }
+					else if (params.getParams().wing_count)
+					{ }
+				}
+			}
+
 			void reportSensors(PlaneParams& params, StateReporter& reporter)
 			{
 				params.getSensors().reportState(reporter);
@@ -212,6 +245,9 @@ namespace msr {
 
 			//let us be the owner of rotors object
 			vector<Rotor> rotors_;   // ѕомимо роторов здесь доступны и рули
+
+			std::vector<UniForce*> uniforces_;
+
 			vector<PhysicsBodyVertex> drag_vertices_;
 			
 			std::unique_ptr<Environment> environment_;
