@@ -60,11 +60,12 @@ namespace msr {
 				reportSensors(*params_, reporter);
 
 				//report rotors
-				for (uint rotor_index = 0; rotor_index < rotors_.size(); ++rotor_index) {
+				for (uint rotor_index = 0; rotor_index < uniforces_.size(); ++rotor_index) {
 					reporter.startHeading("", 1);
 					reporter.writeValue("Rotor", rotor_index);
 					reporter.endHeading(false, 1);
-					rotors_.at(rotor_index).reportState(reporter);
+					//rotors_.at(rotor_index).reportState(reporter);
+					uniforces_.at(rotor_index)->reportState(reporter);
 				}
 				//TODO: report rudders
 
@@ -83,8 +84,9 @@ namespace msr {
 				vehicle_api_->update();
 
 				//transfer new input values from controller to rotors
-				for (uint rotor_index = 0; rotor_index < rotors_.size(); ++rotor_index) {
-					rotors_.at(rotor_index).setControlSignal(
+				for (uint rotor_index = 0; rotor_index < uniforces_.size(); ++rotor_index) {
+					//rotors_.at(rotor_index).setControlSignal(vehicle_api_->getActuation(rotor_index));
+					uniforces_.at(rotor_index)->setControlSignal(
 						vehicle_api_->getActuation(rotor_index));
 				}
 			}
@@ -98,15 +100,21 @@ namespace msr {
 			//physics body interface
 			virtual uint wrenchVertexCount() const  override
 			{
-				return (params_->getParams().rotor_count + params_->getParams().rudder_count);
+				return (params_->getParams().rotor_count + 
+						params_->getParams().rudder_count + 
+						params_->getParams().wing_count);
 			}
 			virtual PhysicsBodyVertex& getWrenchVertex(uint index)  override
 			{
-				return rotors_.at(index);
+				//return rotors_.at(index);
+				/*PhysicsBodyVertex & ret = *uniforces_.at(index);
+				return ret;*/
+				return *uniforces_.at(index);
 			}
 			virtual const PhysicsBodyVertex& getWrenchVertex(uint index) const override
 			{
-				return rotors_.at(index);
+				//return rotors_.at(index);
+				return *uniforces_.at(index);
 			}
 
 			virtual uint dragVertexCount() const override
@@ -131,9 +139,13 @@ namespace msr {
 				return params_->getParams().friction;
 			}
 
-			Rotor::Output getRotorOutput(uint rotor_index) const
+			//Rotor::Output getRotorOutput(uint rotor_index) const
+			//{
+			//	return rotors_.at(rotor_index).getOutput();
+			//}
+			UniForce::Output getForceOutput(uint rotor_index) const
 			{
-				return rotors_.at(rotor_index).getOutput();
+				return uniforces_.at(rotor_index)->getOutput();
 			}
 
 			virtual ~Plane() = default;
@@ -143,29 +155,33 @@ namespace msr {
 			{
 				PhysicsBody::initialize(params_->getParams().mass, params_->getParams().inertia, kinematics, environment);
 
-				createRotors(*params_, rotors_, environment);
+				//createRotors(*params_, rotors_, environment
+				_rotors_count = params_->getParams().rotor_count;
+				createRuRoWs(*params_, uniforces_, environment);
 				
 				createDragVertices();
 
 				initSensors(*params_, getKinematics(), getEnvironment());
 			}
 
-			static void createRotors(const PlaneParams& params, vector<Rotor>& rotors, const Environment* environment)
-			{
-				rotors.clear();
-				//for each rotor pose
-				for (uint rotor_index = 0; rotor_index < (params.getParams().rotor_count + params.getParams().rudder_count ); ++rotor_index) {
-					const PlaneParams::RotorPose& rotor_pose = params.getParams().rotor_poses.at(rotor_index);
-					rotors.emplace_back(rotor_pose.position, rotor_pose.normal, rotor_pose.direction, params.getParams().rotor_params, environment, rotor_index);
-				}
-			}
+			//static void createRotors(const PlaneParams& params, vector<Rotor>& rotors, const Environment* environment)
+			//{
+			//	rotors.clear();
+			//	//for each rotor pose
+			//	for (uint rotor_index = 0; rotor_index < (params.getParams().rotor_count + params.getParams().rudder_count ); ++rotor_index) {
+			//		const PlaneParams::RotorPose& rotor_pose = params.getParams().rotor_poses.at(rotor_index);
+			//		rotors.emplace_back(rotor_pose.position, rotor_pose.normal, rotor_pose.direction, params.getParams().rotor_params, environment, rotor_index);
+			//	}
+			//}
 
-			static void createRuRoWs(const PlaneParams& params, vector<UniForce>& uniforces, const Environment* environment)
+			static void createRuRoWs(const PlaneParams& params, vector<UniForce*>& uniforces, const Environment* environment)
 			{
 				uniforces.clear();
 				uint force_count = params.getParams().rotor_count + 
 									params.getParams().rudder_count + 
 									params.getParams().wing_count;
+				
+				
 				for (uint i = 0; i < force_count; ++i)
 				{
 					const PlaneParams::RotorPose& rotor_pose = params.getParams().rotor_poses.at(i);
@@ -224,9 +240,12 @@ namespace msr {
 				real_T left_right_area = params.body_box.x() * params.body_box.z();
 				real_T front_back_area = params.body_box.y() * params.body_box.z();
 				Vector3r drag_factor_unit = Vector3r(
-					front_back_area + rotors_.size() * propeller_xsection,
+					/*front_back_area + rotors_.size() * propeller_xsection,
 					left_right_area + rotors_.size() * propeller_xsection,
-					top_bottom_area + rotors_.size() * propeller_area)
+					top_bottom_area + rotors_.size() * propeller_area)*/
+					front_back_area + _rotors_count * propeller_xsection,
+					left_right_area + _rotors_count * propeller_xsection,
+					top_bottom_area + _rotors_count * propeller_area)
 					* params.linear_drag_coefficient / 2;
 
 				//add six drag vertices representing 6 sides
@@ -242,9 +261,9 @@ namespace msr {
 
 		private: //fields
 			PlaneParams* params_;
-
+			uint _rotors_count;
 			//let us be the owner of rotors object
-			vector<Rotor> rotors_;   // ѕомимо роторов здесь доступны и рули
+			//vector<Rotor> rotors_;   // ѕомимо роторов здесь доступны и рули
 
 			std::vector<UniForce*> uniforces_;
 
