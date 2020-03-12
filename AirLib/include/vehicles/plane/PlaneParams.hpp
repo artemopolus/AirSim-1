@@ -9,6 +9,7 @@
 #include "vehicles/multirotor/RotorParams.hpp"
 #include "Rudder.hpp"
 #include "UniForce.hpp"
+#include "UFRotorParams.hpp"
 #include "sensors/SensorCollection.hpp"
 #include "sensors/SensorFactory.hpp"
 #include "vehicles/plane/api/PlaneApiBase.hpp"
@@ -56,7 +57,7 @@ namespace msr {
 				RotorParams rotor_params;
 				RudderParams rudder_params;
 				UniForceParams force_params;
-				UFRotorParams * ufrotor_params;
+				UFRotorParams * ufrotor_params = new UFRotorParams();
 			};
 
 

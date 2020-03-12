@@ -22,7 +22,7 @@ namespace msr {
 			real_T control_signal_filter_tc;
 
 			real_T revolutions_per_second;
-			real_T max_speed;;
+			real_T max_speed;
 			real_T max_speed_square;
 			real_T max_thrust;
 			real_T max_torque;
@@ -38,8 +38,12 @@ namespace msr {
 			virtual void calculateMaxThrust() {
 			}
 			virtual void calculateMaxThrust( real_T value) {
+				unused(value);
+				 throw std::out_of_range("no physics vertex are available");
 			}
 			virtual void calculateMaxThrust( real_T datamass[] ) {
+				unused(datamass);
+				 throw std::out_of_range("no physics vertex are available");
 			}
 		private:
 			virtual void initialize()

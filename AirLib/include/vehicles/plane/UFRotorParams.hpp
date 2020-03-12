@@ -16,6 +16,15 @@ namespace msr {
 				max_thrust = C_T * air_density * nsquared * pow(propeller_diameter, 4);
 				max_torque = C_P * air_density * nsquared * pow(propeller_diameter, 5) / (2 * M_PIf);
 			}
+			virtual void calculateMaxThrust( real_T value) {
+				max_rpm = value;
+				calculateMaxThrust();
+			}
+			virtual void calculateMaxThrust( real_T datamass[] ) {
+				max_rpm = datamass[0];
+				air_density = datamass[2];
+				calculateMaxThrust();
+			}
 		private:
 			virtual void initialize()
 			{
@@ -41,7 +50,6 @@ namespace msr {
 				propeller_height = 1 / 100.0f;   //height of cylindrical area when propeller rotates, 1 cm
 				control_signal_filter_tc = 0.005f;    //time constant for low pass filter
 
-				revolutions_per_second;
 				max_thrust = 4.179446268f; //computed from above formula for the given constants
 				max_torque = 0.055562f; //computed from above formula
 			}
