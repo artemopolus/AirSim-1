@@ -83,6 +83,8 @@
     <ClInclude Include="include\common\ImageCaptureBase.hpp" />
     <ClInclude Include="include\api\VehicleConnectorBase.hpp" />
     <ClInclude Include="include\physics\ExPhysicsEngine.hpp" />
+    <ClInclude Include="include\physics\VolumeForce.hpp" />
+    <ClInclude Include="include\physics\Wind.hpp" />
     <ClInclude Include="include\sensors\SensorFactory.hpp" />
     <ClInclude Include="include\vehicles\car\api\CarApiBase.hpp" />
     <ClInclude Include="include\vehicles\multirotor\api\MultirotorCommon.hpp" />
