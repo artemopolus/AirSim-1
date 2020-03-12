@@ -29,7 +29,11 @@ namespace msr {
 				real_T control_signal_filtered;
 				real_T control_signal_input;
 			};
-
+			enum class UniForceType : uint {
+				Rotor = 1,
+				Rudder = 2,
+				Wing = 3
+			};
 		public: //methods
 			
 			void initialize(const Vector3r& position, const Vector3r& normal, UniForceParams::UniForceDirection turning_direction,
@@ -43,6 +47,14 @@ namespace msr {
 				control_signal_filter_.initialize(getParams().control_signal_filter_tc, 0, 0);
 
 				PhysicsBodyVertex::initialize(position, normal);   //call base initializer
+			}
+			void setType(UniForceType type)
+			{
+				_type = type;
+			}
+			UniForceType getType() const
+			{
+				return _type;
 			}
 
 			//0 to 1 - will be scaled to 0 to max_speed
@@ -111,10 +123,13 @@ namespace msr {
 			{
 				//update air density ration - this will affect generated force and torques by rotors
 				air_density_ratio_ = environment_->getState().air_density / air_density_sea_level_;
+
+				_wind_force = environment_->getState().air_wind.getValue();
 			}
 			virtual UniForceParams& getParams()
 			{
 			}
+			
 			
 		private: //fields
 			uint id_; //only used for debug messages
@@ -124,6 +139,9 @@ namespace msr {
 			const Environment* environment_ = nullptr;
 			real_T air_density_sea_level_, air_density_ratio_;
 			Output output_;
+			UniForceType _type;
+
+			Vector3r _wind_force;
 		};
 
 

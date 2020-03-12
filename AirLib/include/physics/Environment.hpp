@@ -8,6 +8,7 @@
 #include "common/UpdatableObject.hpp"
 #include "common/CommonStructs.hpp"
 #include "common/EarthUtils.hpp"
+#include "Wind.hpp"
 
 namespace msr { namespace airlib {
 
@@ -23,6 +24,8 @@ public:
         real_T air_pressure;
         real_T temperature;
         real_T air_density;
+		/* встраиваем ветер */
+		Wind air_wind;
 
         State()
         {}

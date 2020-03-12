@@ -62,7 +62,7 @@ namespace msr {
 				//report rotors
 				for (uint rotor_index = 0; rotor_index < uniforces_.size(); ++rotor_index) {
 					reporter.startHeading("", 1);
-					reporter.writeValue("Rotor", rotor_index);
+					reporter.writeValue("Force", rotor_index);
 					reporter.endHeading(false, 1);
 					//rotors_.at(rotor_index).reportState(reporter);
 					uniforces_.at(rotor_index)->reportState(reporter);
@@ -90,6 +90,7 @@ namespace msr {
 						vehicle_api_->getActuation(rotor_index));
 				}
 			}
+			/* Здесь обновляем */
 
 			//sensor getter
 			const SensorCollection& getSensors() const

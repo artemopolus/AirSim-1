@@ -13,6 +13,7 @@ namespace msr { namespace airlib {
 				: params_(params)
 			{
 				initialize(position, normal, turning_direction, environment, id);
+				setType(UniForceType::Rotor);
 			}
 			virtual void reportState(StateReporter& reporter) override
 			{
