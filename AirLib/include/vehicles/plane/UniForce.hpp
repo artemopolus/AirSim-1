@@ -21,6 +21,11 @@ namespace msr {
 		//output
 		class UniForce : public PhysicsBodyVertex {
 		public: //types
+			enum class UniForceType : uint {
+				Rotor = 1,
+				Rudder = 2,
+				Wing = 3
+			};
 			struct Output {
 				real_T thrust;
 				real_T torque_scaler;
@@ -29,12 +34,9 @@ namespace msr {
 				UniForceParams::UniForceDirection turning_direction;
 				real_T control_signal_filtered;
 				real_T control_signal_input;
+				UniForceType type;
 			};
-			enum class UniForceType : uint {
-				Rotor = 1,
-				Rudder = 2,
-				Wing = 3
-			};
+			
 		public: //methods
 			
 			void initialize(const Vector3r& position, const Vector3r& normal, UniForceParams::UniForceDirection turning_direction,
@@ -51,11 +53,11 @@ namespace msr {
 			}
 			void setType(UniForceType type)
 			{
-				_type = type;
+				output_.type = type;
 			}
 			UniForceType getType() const
 			{
-				return _type;
+				return output_.type;
 			}
 			virtual void setAirSpeed(Vector3r air_speed)
 			{
@@ -150,7 +152,7 @@ namespace msr {
 			const Environment* environment_ = nullptr;
 			real_T air_density_sea_level_, air_density_ratio_;
 			Output output_;
-			UniForceType _type;
+			
 
 			Vector3r _wind_force;
 		};

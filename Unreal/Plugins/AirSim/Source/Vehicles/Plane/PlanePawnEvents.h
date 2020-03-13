@@ -22,7 +22,8 @@ public: //types
         int rotor_direction = 0;
         real_T rotor_thrust = 0;
         real_T rotor_control_filtered = 0;
-        ActuatorType TypeInfo = ActuatorType::Rotor; /* информация о движке */
+        int rotor_typeInfo = 0; /* информация о движке */
+        real_T rotor_angle = 0;
     };
 
     typedef common_utils::Signal<const std::vector<RotorInfo>&> ActuatorsSignal;

@@ -73,12 +73,14 @@ void PlanePawnSimApi::updateRenderedState(float dt)
 
     //update rotor poses
     for (unsigned int i = 0; i < rotor_count_; ++i) {
-        const auto& rotor_output = phys_vehicle_->getRotorOutput(i);
+        const auto& rotor_output = phys_vehicle_->getForceOutput(i);
         RotorInfo* info = &rotor_info_[i];
         info->rotor_speed = rotor_output.speed;
         info->rotor_direction = static_cast<int>(rotor_output.turning_direction);
         info->rotor_thrust = rotor_output.thrust;
         info->rotor_control_filtered = rotor_output.control_signal_filtered;
+        info->rotor_angle = rotor_output.angle;
+        info->rotor_type = static_cast<int>rotor_output.type;
     }
 
     vehicle_api_->getStatusMessages(vehicle_api_messages_);
