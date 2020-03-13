@@ -25,7 +25,7 @@ namespace msr {
 				reporter.writeValue("thrust", getOutput().thrust);
 				reporter.writeValue("torque", getOutput().torque_scaler);
 			}
-			void setAirSpeed(Vector3r air_speed)
+			virtual void setAirSpeed(Vector3r air_speed)
 			{
 				_air_speed = air_speed;
 			}

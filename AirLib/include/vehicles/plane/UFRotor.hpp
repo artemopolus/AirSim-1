@@ -24,6 +24,10 @@ namespace msr { namespace airlib {
 				reporter.writeValue("thrust", getOutput().thrust);
 				reporter.writeValue("torque", getOutput().torque_scaler);
 			}
+			virtual void setAirSpeed(Vector3r air_speed)
+			{
+				unused(air_speed);
+			}
 			virtual void setControlSignal(real_T control_signal) override
 			{
 				//control_signal_filter_.setInput(Utils::clip(control_signal, 0.0f, 1.0f));

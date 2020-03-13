@@ -57,7 +57,10 @@ namespace msr {
 			{
 				return _type;
 			}
-
+			virtual void setAirSpeed(Vector3r air_speed)
+			{
+				unused(air_speed);
+			}
 			//0 to 1 - will be scaled to 0 to max_speed
 			virtual void setControlSignal(real_T control_signal)
 			{

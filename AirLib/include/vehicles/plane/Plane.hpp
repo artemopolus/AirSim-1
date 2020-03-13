@@ -83,9 +83,12 @@ namespace msr {
 				//update controller which will update actuator control signal
 				vehicle_api_->update();
 
+				_air_speed = getEnvironment().getState().air_wind.getValue() + getKinematics().twist.linear;
+
 				//transfer new input values from controller to rotors
 				for (uint rotor_index = 0; rotor_index < uniforces_.size(); ++rotor_index) {
 					//rotors_.at(rotor_index).setControlSignal(vehicle_api_->getActuation(rotor_index));
+					uniforces_.at(rotor_index)->setAirSpeed(_air_speed);
 					uniforces_.at(rotor_index)->setControlSignal(
 						vehicle_api_->getActuation(rotor_index));
 				}
@@ -272,6 +275,8 @@ namespace msr {
 			
 			std::unique_ptr<Environment> environment_;
 			VehicleApiBase* vehicle_api_;
+
+			Vector3r _air_speed;
 		};
 
 	}
