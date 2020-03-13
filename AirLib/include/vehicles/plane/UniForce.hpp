@@ -25,6 +25,7 @@ namespace msr {
 				real_T thrust;
 				real_T torque_scaler;
 				real_T speed;
+				real_T angle;
 				UniForceParams::UniForceDirection turning_direction;
 				real_T control_signal_filtered;
 				real_T control_signal_input;
@@ -58,9 +59,10 @@ namespace msr {
 			}
 
 			//0 to 1 - will be scaled to 0 to max_speed
-			void setControlSignal(real_T control_signal)
+			virtual void setControlSignal(real_T control_signal)
 			{
-				control_signal_filter_.setInput(Utils::clip(control_signal, 0.0f, 1.0f));
+				//control_signal_filter_.setInput(Utils::clip(control_signal, 0.0f, 1.0f));
+				control_signal_filter_.setInput(control_signal);
 			}
 
 			Output getOutput() const
@@ -76,6 +78,7 @@ namespace msr {
 				return turning_direction_;
 			}
 
+			
 			//*** Start: UpdatableState implementation ***//
 			virtual void resetImplementation() override
 			{

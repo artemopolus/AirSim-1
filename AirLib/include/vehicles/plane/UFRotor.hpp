@@ -24,6 +24,12 @@ namespace msr { namespace airlib {
 				reporter.writeValue("thrust", getOutput().thrust);
 				reporter.writeValue("torque", getOutput().torque_scaler);
 			}
+			virtual void setControlSignal(real_T control_signal) override
+			{
+				//control_signal_filter_.setInput(Utils::clip(control_signal, 0.0f, 1.0f));
+				real_T ctrl = Utils::clip(control_signal, 0.0f, 1.0f);
+				UniForce::setControlSignal(ctrl);
+			}
 		protected:
 			virtual void setWrench(Wrench& wrench) override
 			{

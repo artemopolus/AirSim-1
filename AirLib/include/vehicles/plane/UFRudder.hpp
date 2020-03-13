@@ -25,23 +25,32 @@ namespace msr {
 				reporter.writeValue("thrust", getOutput().thrust);
 				reporter.writeValue("torque", getOutput().torque_scaler);
 			}
+			void setAirSpeed(Vector3r air_speed)
+			{
+				_air_speed = air_speed;
+			}
+			virtual void setControlSignal(real_T control_signal) override
+			{
+				real_T ctrl = control_signal;
+				UniForce::setControlSignal(ctrl);
+			}
+		
 		protected:
 			virtual void setWrench(Wrench& wrench) override
 			{
-				//Vector3r normal = getNormal();
-				////forces and torques are proportional to air density: http://physics.stackexchange.com/a/32013/14061
-				//wrench.force = normal * getOutput().thrust * getAirDensityRatio();
-				//wrench.torque = normal * getOutput().torque_scaler * getAirDensityRatio(); //TODO: try using filtered control here
+				Vector3r normal = getNormal();
+				wrench.force = normal * getOutput().thrust * getAirDensityRatio();
+				wrench.torque = Vector3r::Zero();
 			}
 		private:
 			virtual void setOutput(Output& output, const FirstOrderFilter<real_T>& control_signal_filter)
 			{
 				output.control_signal_input = control_signal_filter.getInput();
 				output.control_signal_filtered = control_signal_filter.getOutput();
-				//see relationship of rotation speed with thrust: http://physics.stackexchange.com/a/32013/14061
-				output.speed = sqrt(output.control_signal_filtered * params_->max_speed_square);
-				output.thrust = output.control_signal_filtered * params_->max_thrust;
-				output.torque_scaler = output.control_signal_input * params_->max_torque * static_cast<int>(getTurningDirection());
+				output.angle = output.control_signal_filtered * params_->getMaxAngle();
+				//output.speed = sqrt(output.control_signal_filtered * params_->max_speed_square);
+				output.thrust = output.control_signal_filtered * params_->getMaxThrust() * static_cast<int>(getTurningDirection());
+				output.torque_scaler = 0;
 				output.turning_direction = getTurningDirection();
 			}
 			virtual UniForceParams& getParams()
@@ -50,6 +59,7 @@ namespace msr {
 			}
 		private:
 			UFRudderParams * params_;
+			Vector3r _air_speed;
 		};
 	}
 }

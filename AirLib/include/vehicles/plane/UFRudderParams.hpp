@@ -8,8 +8,9 @@ namespace msr {
 		{
 		public:
 			virtual void calculateMaxThrust() {
-				max_thrust_angle_1 = thrust_per_lenght * sin(max_angle_1) * rudder_length_1;
-				max_thrust_angle_2 = thrust_per_lenght * sin(max_angle_2) * rudder_length_2;
+				real_T value = 1.0f;
+				rudder_length_1 = value;
+				rudder_length_2 = value;
 			}
 			virtual void calculateMaxThrust(real_T value) {
 				rudder_length_1 = value;
@@ -20,6 +21,14 @@ namespace msr {
 				rudder_length_1 = rudder_lengths[0];
 				rudder_length_2 = rudder_lengths[1];
 				calculateMaxThrust();
+			}
+			real_T getMaxAngle() const
+			{
+				return max_angle_1;
+			}
+			real_T getMaxThrust() const
+			{
+				return max_angle_1;
 			}
 		private:
 			virtual void initialize()
