@@ -86,7 +86,7 @@ namespace msr {
 
 				control_signal_filter_.reset();
 
-				setOutput(output_, getParams(), control_signal_filter_, turning_direction_);
+				setOutput(output_, control_signal_filter_);
 			}
 
 			virtual void update() override
@@ -98,7 +98,7 @@ namespace msr {
 				PhysicsBodyVertex::update();
 
 				//update our state
-				setOutput(output_, getParams(), control_signal_filter_, turning_direction_);
+				setOutput(output_, control_signal_filter_);
 
 				//update filter - this should be after so that first output is same as initial
 				control_signal_filter_.update();
@@ -108,15 +108,20 @@ namespace msr {
 			//*** End: UpdatableState implementation ***//
 
 		private: //methods
-			static void setOutput(Output& output, const UniForceParams& params, const FirstOrderFilter<real_T>& control_signal_filter, UniForceParams::UniForceDirection turning_direction)
+			//static void setOutput(Output& output, const UniForceParams& params, const FirstOrderFilter<real_T>& control_signal_filter, UniForceParams::UniForceDirection turning_direction)
+			//{
+			//	output.control_signal_input = control_signal_filter.getInput();
+			//	output.control_signal_filtered = control_signal_filter.getOutput();
+			//	//see relationship of rotation speed with thrust: http://physics.stackexchange.com/a/32013/14061
+			//	output.speed = sqrt(output.control_signal_filtered * params.max_speed_square);
+			//	output.thrust = output.control_signal_filtered * params.max_thrust;
+			//	output.torque_scaler = output.control_signal_input * params.max_torque * static_cast<int>(turning_direction);
+			//	output.turning_direction = turning_direction;
+			//}
+			virtual void setOutput(Output& output, const FirstOrderFilter<real_T>& control_signal_filter)
 			{
-				output.control_signal_input = control_signal_filter.getInput();
-				output.control_signal_filtered = control_signal_filter.getOutput();
-				//see relationship of rotation speed with thrust: http://physics.stackexchange.com/a/32013/14061
-				output.speed = sqrt(output.control_signal_filtered * params.max_speed_square);
-				output.thrust = output.control_signal_filtered * params.max_thrust;
-				output.torque_scaler = output.control_signal_input * params.max_torque * static_cast<int>(turning_direction);
-				output.turning_direction = turning_direction;
+				unused(output);
+				unused(control_signal_filter);
 			}
 
 			void updateEnvironmentalFactors()
