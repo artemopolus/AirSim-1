@@ -10,6 +10,7 @@
 #include "Rudder.hpp"
 #include "UniForce.hpp"
 #include "UFRotorParams.hpp"
+#include "UFRudderParams.hpp"
 #include "sensors/SensorCollection.hpp"
 #include "sensors/SensorFactory.hpp"
 #include "vehicles/plane/api/PlaneApiBase.hpp"
@@ -37,9 +38,9 @@ namespace msr {
 				
 				vector<RotorPose> rotor_poses;
 				/* Рули */
-				uint rotor_count;
-				uint rudder_count;
-				uint wing_count;
+				uint rotor_count = 0;
+				uint rudder_count = 0;
+				uint wing_count = 0;
 				//vector<RotorPose> rudder_poses;
 				real_T mass;
 				Matrix3x3r inertia;
@@ -58,6 +59,7 @@ namespace msr {
 				RudderParams rudder_params;
 				UniForceParams force_params;
 				UFRotorParams * ufrotor_params = new UFRotorParams();
+				UFRudderParams * ufrudder_params = new UFRudderParams();
 			};
 
 

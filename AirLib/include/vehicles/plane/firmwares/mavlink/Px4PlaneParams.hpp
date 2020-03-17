@@ -54,6 +54,7 @@ namespace msr {
 			{
 				params.rotor_count = 1;
 				params.rudder_count = 2;
+				params.wing_count = 0;
 				std::vector<real_T> arm_length;
 				std::vector<real_T> rudder_length(params.rudder_count, 0.5f);
 				arm_length.emplace_back(0.3f); // расстояние до ротора

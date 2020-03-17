@@ -17,6 +17,7 @@
 /* наше все! */
 #include "UniForce.hpp"
 #include "UFRotor.hpp"
+#include "UFRudder.hpp"
 
 
 namespace msr {
@@ -189,7 +190,7 @@ namespace msr {
 				for (uint i = 0; i < force_count; ++i)
 				{
 					const PlaneParams::RotorPose& rotor_pose = params.getParams().rotor_poses.at(i);
-					UniForce force;
+					//UniForce force;
 					if (i < params.getParams().rotor_count)
 					{
 						/*force = new UFRotor(rotor_pose.position, rotor_pose.normal, rotor_pose.direction, 
@@ -202,7 +203,14 @@ namespace msr {
 					}
 					else if (i < (params.getParams().rotor_count + params.getParams().rudder_count)
 									&&(params.getParams().rudder_count))
-					{ }
+					{ 
+					//TODO
+						uniforces.emplace_back(new UFRudder(
+							rotor_pose.position,
+							rotor_pose.normal,
+							(UFRudderParams::UniForceDirection) rotor_pose.direction,
+							params.getParams().ufrudder_params, environment, i));
+					}
 					else if (params.getParams().wing_count)
 					{ }
 				}

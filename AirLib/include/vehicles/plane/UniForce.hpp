@@ -139,9 +139,7 @@ namespace msr {
 
 				_wind_force = environment_->getState().air_wind.getValue();
 			}
-			virtual UniForceParams& getParams()
-			{
-			}
+			virtual UniForceParams& getParams() = 0;
 			
 			
 		private: //fields

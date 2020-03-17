@@ -84,19 +84,18 @@ void APlaneFlyingPawn::NotifyHit(class UPrimitiveComponent* MyComp, class AActor
 
 void APlaneFlyingPawn::setRotorSpeed(const std::vector<PlanePawnEvents::RotorInfo>& rotor_infos)
 {
-    for (auto rotor_index = 0; rotor_index < (rotor_count + rudder_count); ++rotor_index) {
+    for (auto rotor_index = 0; rotor_index < rotor_count ; ++rotor_index) {
         auto comp = rotating_movements_[rotor_index];
         if (comp != nullptr) {
-            if (rotor_infos.at(rotor_index).typeInfo == 1)
-            {
-                comp->RotationRate.Yaw = 
-                rotor_infos.at(rotor_index).rotor_speed * rotor_infos.at(rotor_index).rotor_direction *
+            comp->RotationRate.Yaw = 
+            rotor_infos.at(rotor_index).rotor_speed * rotor_infos.at(rotor_index).rotor_direction *
                 180.0f / M_PIf * RotatorFactor;
-            }
-            else if (rotor_infos.at(rotor_index).typeInfo == 2)
-            {
-                ot->SetRelativeRotation(FRotator(rotor_infos.at(rotor_index).rotor_angle,0,0));
-            }
+        }
+    }
+    for (auto rudder_index = 0; rudder_index < rudder_count ; ++rudder_index) {
+        auto rot = rudder_orientation_[rudder_index];
+        if (rot != nullptr) {
+            rot->SetRelativeRotation(FRotator(rotor_infos.at(rotor_count + rudder_index).rotor_angle,0,0));
         }
     }
 }

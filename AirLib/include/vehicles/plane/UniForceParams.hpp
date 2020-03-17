@@ -31,7 +31,7 @@ namespace msr {
 			{
 				initialize();
 			}
-			~UniForceParams()
+			virtual ~UniForceParams()
 			{
 
 			}

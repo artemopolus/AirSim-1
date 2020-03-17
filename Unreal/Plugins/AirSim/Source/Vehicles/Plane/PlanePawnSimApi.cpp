@@ -80,7 +80,7 @@ void PlanePawnSimApi::updateRenderedState(float dt)
         info->rotor_thrust = rotor_output.thrust;
         info->rotor_control_filtered = rotor_output.control_signal_filtered;
         info->rotor_angle = rotor_output.angle;
-        info->rotor_type = static_cast<int>rotor_output.type;
+        info->rotor_typeInfo = static_cast<int>(rotor_output.type);
     }
 
     vehicle_api_->getStatusMessages(vehicle_api_messages_);
