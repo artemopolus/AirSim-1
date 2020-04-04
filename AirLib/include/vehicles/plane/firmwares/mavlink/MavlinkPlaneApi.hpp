@@ -37,6 +37,9 @@
 #include "sensors/magnetometer/MagnetometerBase.hpp"
 #include "sensors/distance/DistanceBase.hpp"
 
+//logger
+#include "common/LogFileWriter.hpp"
+
 namespace msr {
 	namespace airlib {
 
@@ -52,7 +55,27 @@ namespace msr {
 					this->connect_thread_.join();
 				}
 			}
-
+			void initLogger(std::string vehicle_name)
+			{
+				if (!this->Logger_HilCtrlMsg_.isOpen())
+				{
+					std::string filename = std::string("J:/Unreal/LogAirSim/") + vehicle_name + std::string("_log_HilCtrlMsg.txt");
+					this->Logger_HilCtrlMsg_.open(filename, true);
+				}
+				//TODO: убрать перезаписывание лога
+				if (!this->Logger_HilActCtrlMsg_.isOpen())
+				{
+					std::string filename = std::string("J:/Unreal/LogAirSim/") + vehicle_name + std::string("_log_HilActCtrlMsg.txt");
+					this->Logger_HilActCtrlMsg_.open(filename, true);
+				}
+			}
+			void stopLogger()
+			{
+				if (this->Logger_HilCtrlMsg_.isOpen())
+					this->Logger_HilCtrlMsg_.close();
+				if (this->Logger_HilActCtrlMsg_.isOpen())
+					this->Logger_HilActCtrlMsg_.close();
+			}
 			//non-base interface specific to MavLinKDroneController
 			void initialize(const AirSimSettings::MavLinkConnectionInfo& connection_info, const SensorCollection* sensors, bool is_simulation)
 			{
@@ -1210,6 +1233,9 @@ namespace msr {
 						rotor_controls_[6] = HilControlsMessage.aux3;
 						rotor_controls_[7] = HilControlsMessage.aux4;
 
+						/* логируем*/
+						this->Logger_HilCtrlMsg_.write(this->rotor_controls_, 8);
+
 						normalizeRotorControls();
 						received_actuator_controls_ = true;
 					}
@@ -1231,6 +1257,8 @@ namespace msr {
 					}
 					if (isarmed)
 					{
+						/* Логируем*/
+						this->Logger_HilActCtrlMsg_.write(this->rotor_controls_, 8);
 						normalizeRotorControls();
 					}
 					received_actuator_controls_ = true;
@@ -1494,6 +1522,10 @@ namespace msr {
 			//this is why below two variables are marked as mutable
 			mutable int state_version_;
 			mutable mavlinkcom::VehicleState current_state_;
+
+			/* Логирование */
+			LogFileWriter Logger_HilCtrlMsg_;
+			LogFileWriter Logger_HilActCtrlMsg_;
 		};
 
 

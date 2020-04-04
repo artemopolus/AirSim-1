@@ -46,8 +46,8 @@ namespace msr {
 				turning_direction_ = turning_direction;
 				environment_ = environment;
 				air_density_sea_level_ = EarthUtils::getAirDensity(0.0f);
-
-				control_signal_filter_.initialize(getParams().control_signal_filter_tc, 0, 0);
+				real_T csf_tc = this->getCtrlSigFltTC();
+				control_signal_filter_.initialize(csf_tc, 0, 0);
 
 				PhysicsBodyVertex::initialize(position, normal);   //call base initializer
 			}
@@ -139,8 +139,8 @@ namespace msr {
 
 				_wind_force = environment_->getState().air_wind.getValue();
 			}
-			virtual UniForceParams& getParams() = 0;
-			
+			virtual UniForceParams& getParams() const = 0;
+			virtual real_T getCtrlSigFltTC() const = 0;
 			
 		private: //fields
 			uint id_; //only used for debug messages

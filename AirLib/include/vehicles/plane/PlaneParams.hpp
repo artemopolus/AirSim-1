@@ -57,7 +57,7 @@ namespace msr {
 				real_T friction = 0.5f;
 				RotorParams rotor_params;
 				RudderParams rudder_params;
-				UniForceParams force_params;
+				//UniForceParams force_params;
 				UFRotorParams * ufrotor_params = new UFRotorParams();
 				UFRudderParams * ufrudder_params = new UFRudderParams();
 			};

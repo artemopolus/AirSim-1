@@ -23,6 +23,10 @@ public:
     {
         close();
     }
+	bool isOpen() const
+	{
+		return this->enabled_;
+	}
     void open(const string& file_name, bool enabled = true)
     {
         close();
@@ -34,8 +38,11 @@ public:
     }
     void close()
     {
-        if (log_file_.is_open())
-            log_file_.close();
+		if (log_file_.is_open())
+		{
+			log_file_.close();
+			enabled_ = false;
+		}   
     }
 
     template<typename T>
@@ -44,6 +51,31 @@ public:
         if (enabled_)
             log_file_ << val << "\t";
     }
+	void write(std::string str)
+	{
+		if (enabled_)
+		{
+			log_file_ << str << "\t";
+		}
+	}
+	void write(float val)
+	{
+		if (enabled_)
+		{
+			log_file_ << val << "\t";
+		}
+	}
+	void write(const float * datamass, const uint datacount)
+	{
+		if (enabled_)
+		{
+			for (uint i = 0; i < datacount; i++)
+			{
+				log_file_ << datamass[i] << "\t";
+			}
+			this->endl();
+		}
+	}
     void write(const Vector3r& vec)
     {
         if (enabled_)

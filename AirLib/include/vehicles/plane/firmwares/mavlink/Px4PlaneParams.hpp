@@ -19,6 +19,7 @@ namespace msr {
 				: sensor_factory_(sensor_factory)
 			{
 				connection_info_ = getConnectionInfo(vehicle_setting);
+				px4plane_name_ = vehicle_setting.vehicle_name;
 			}
 
 			virtual ~Px4PlaneParams() = default;
@@ -28,7 +29,7 @@ namespace msr {
 				unique_ptr<PlaneApiBase> api(new MavLinkPlaneApi());
 				auto api_ptr = static_cast<MavLinkPlaneApi*>(api.get());
 				api_ptr->initialize(connection_info_, &getSensors(), true);
-
+				api_ptr->initLogger(this->px4plane_name_);
 				return api;
 			}
 
@@ -272,7 +273,8 @@ namespace msr {
 		private:
 			AirSimSettings::MavLinkConnectionInfo connection_info_;
 			std::shared_ptr<const SensorFactory> sensor_factory_;
-
+			/* храним тут имя */
+			std::string px4plane_name_;
 		};
 
 	}

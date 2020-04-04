@@ -7,6 +7,8 @@
 APlaneFlyingPawn::APlaneFlyingPawn()
 {
     pawn_events_.getActuatorSignal().connect_member(this, &APlaneFlyingPawn::setRotorSpeed);
+    logfilename_ = std::string("J:/Unreal/LogAirSim/") + std::string(TCHAR_TO_UTF8(*GetName())) + std::string("_PawnAct.txt");;
+    Logger_.open(logfilename_, true);
 }
 
 void APlaneFlyingPawn::BeginPlay()
@@ -84,19 +86,38 @@ void APlaneFlyingPawn::NotifyHit(class UPrimitiveComponent* MyComp, class AActor
 
 void APlaneFlyingPawn::setRotorSpeed(const std::vector<PlanePawnEvents::RotorInfo>& rotor_infos)
 {
-    for (auto rotor_index = 0; rotor_index < rotor_count ; ++rotor_index) {
-        auto comp = rotating_movements_[rotor_index];
-        if (comp != nullptr) {
-            comp->RotationRate.Yaw = 
-            rotor_infos.at(rotor_index).rotor_speed * rotor_infos.at(rotor_index).rotor_direction *
-                180.0f / M_PIf * RotatorFactor;
-        }
+    auto comp = rotating_movements_[0];
+    float rotating = rotor_infos[0].rotor_speed;
+    uint isEndl = 0;
+    if (comp != nullptr)
+    {
+        Logger_.write("throtle:");
+        Logger_.write(rotating);
+        rotating *=  rotor_infos[0].rotor_direction * 180.0f / M_PIf * RotatorFactor;
+        Logger_.write(rotating);
+        comp->RotationRate.Yaw = rotating;
+        isEndl = 1;
     }
+
+    // for (auto rotor_index = 0; rotor_index < rotor_count ; ++rotor_index) {
+    //     auto comp = rotating_movements_[rotor_index];
+    //     if (comp != nullptr) {
+    //         comp->RotationRate.Yaw = 
+    //         rotor_infos.at(rotor_index).rotor_speed * rotor_infos.at(rotor_index).rotor_direction *
+    //             180.0f / M_PIf * RotatorFactor;
+    //     }
+    // }
     for (auto rudder_index = 0; rudder_index < rudder_count ; ++rudder_index) {
         auto rot = rudder_orientation_[rudder_index];
         if (rot != nullptr) {
-            rot->SetRelativeRotation(FRotator(rotor_infos.at(rotor_count + rudder_index).rotor_angle,0,0));
+            float angle = rotor_infos[rotor_count + rudder_index].rotor_angle;
+            Logger_.write("ang:");
+            Logger_.write(angle);
+            rot->SetRelativeRotation(FRotator(angle,0,0));
+            isEndl = 1;
         }
     }
+    if(isEndl)
+        Logger_.endl();
 }
 

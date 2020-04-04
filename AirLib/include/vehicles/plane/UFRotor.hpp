@@ -15,7 +15,7 @@ namespace msr { namespace airlib {
 				initialize(position, normal, turning_direction, environment, id);
 				setType(UniForceType::Rotor);
 			}
-			virtual void reportState(StateReporter& reporter) override
+			void reportState(StateReporter& reporter) override
 			{
 				reporter.writeValue("Dir", static_cast<int>(getTurningDirection()));
 				reporter.writeValue("Ctrl-in", getOutput().control_signal_input);
@@ -24,18 +24,18 @@ namespace msr { namespace airlib {
 				reporter.writeValue("thrust", getOutput().thrust);
 				reporter.writeValue("torque", getOutput().torque_scaler);
 			}
-			virtual void setAirSpeed(Vector3r air_speed)
+			void setAirSpeed(Vector3r air_speed) override
 			{
 				unused(air_speed);
 			}
-			virtual void setControlSignal(real_T control_signal) override
+			void setControlSignal(real_T control_signal) override
 			{
 				//control_signal_filter_.setInput(Utils::clip(control_signal, 0.0f, 1.0f));
 				real_T ctrl = Utils::clip(control_signal, 0.0f, 1.0f);
 				UniForce::setControlSignal(ctrl);
 			}
 		protected:
-			virtual void setWrench(Wrench& wrench) override
+			void setWrench(Wrench& wrench) override
 			{
 				Vector3r normal = getNormal();
 				//forces and torques are proportional to air density: http://physics.stackexchange.com/a/32013/14061
@@ -43,7 +43,7 @@ namespace msr { namespace airlib {
 				wrench.torque = normal * getOutput().torque_scaler * getAirDensityRatio(); //TODO: try using filtered control here
 			}
 		private:
-			virtual void setOutput(Output& output, const FirstOrderFilter<real_T>& control_signal_filter)
+			void setOutput(Output& output, const FirstOrderFilter<real_T>& control_signal_filter) override
 			{
 				output.control_signal_input = control_signal_filter.getInput();
 				output.control_signal_filtered = control_signal_filter.getOutput();
@@ -53,9 +53,13 @@ namespace msr { namespace airlib {
 				output.torque_scaler = output.control_signal_input * params_->max_torque * static_cast<int>(getTurningDirection());
 				output.turning_direction = getTurningDirection();
 			}
-			virtual UniForceParams& getParams()
+			UniForceParams& getParams() const override
 			{
 				return (UniForceParams &)params_;
+			}
+			real_T getCtrlSigFltTC() const override
+			{
+				return params_->control_signal_filter_tc;
 			}
 		private:
 			UFRotorParams * params_;

@@ -15,6 +15,7 @@
 #include <vector>
 #include "physics/PhysicsBody.hpp"
 /* наше все! */
+#include "common/LogFileWriter.hpp"
 #include "UniForce.hpp"
 #include "UFRotor.hpp"
 #include "UFRudder.hpp"
@@ -28,10 +29,14 @@ namespace msr {
 		class Plane : public PhysicsBody {
 		public:
 			Plane(PlaneParams* params, VehicleApiBase* vehicle_api,
-				Kinematics* kinematics, Environment* environment)
-				: params_(params), vehicle_api_(vehicle_api)
+				Kinematics* kinematics, Environment* environment, std::string name)
+				: params_(params), vehicle_api_(vehicle_api), plane_name_(name)
 			{
 				initialize(kinematics, environment);
+				std::string filename = std::string("J:/Unreal/LogAirSim/") + plane_name_ + std::string("_PlaneData.txt");
+				this->Logger_.open(filename, true);
+				setObjType(UpdatableObject::typeUpdObj::plane);
+				setObjName(plane_name_);
 			}
 
 			//*** Start: UpdatableState implementation ***//
@@ -87,11 +92,53 @@ namespace msr {
 				_air_speed = getEnvironment().getState().air_wind.getValue() + getKinematics().twist.linear;
 
 				//transfer new input values from controller to rotors
-				for (uint rotor_index = 0; rotor_index < uniforces_.size(); ++rotor_index) {
-					//rotors_.at(rotor_index).setControlSignal(vehicle_api_->getActuation(rotor_index));
-					uniforces_.at(rotor_index)->setAirSpeed(_air_speed);
-					uniforces_.at(rotor_index)->setControlSignal(
-						vehicle_api_->getActuation(rotor_index));
+				if (isFullLogging_)
+				{
+					Logger_.write("all");
+					for (uint rotor_index = 0; rotor_index < 8; ++rotor_index) {
+						auto val = vehicle_api_->getActuation(rotor_index);
+						Logger_.write(val);
+					}
+					Logger_.endl();
+				}
+				//Logger_.write("input");
+				{
+					//map 
+					uniforces_[0]->setControlSignal( vehicle_api_->getActuation(3));
+					uniforces_[1]->setControlSignal(vehicle_api_->getActuation(0));
+					uniforces_[2]->setControlSignal(vehicle_api_->getActuation(1));
+
+					uniforces_[1]->setAirSpeed(_air_speed);
+					uniforces_[2]->setAirSpeed(_air_speed);
+				}
+				//for (uint rotor_index = 0; rotor_index < uniforces_.size(); ++rotor_index) {
+				//	//rotors_.at(rotor_index).setControlSignal(vehicle_api_->getActuation(rotor_index));
+				//	uniforces_.at(rotor_index)->setAirSpeed(_air_speed);
+				//	auto val = vehicle_api_->getActuation(rotor_index);
+				//	Logger_.write(val);
+				//	uniforces_.at(rotor_index)->setControlSignal(val);
+				//}
+				//Logger_.endl();
+				if (isFullLogging_)
+				{
+					Logger_.write("sig input:");
+					for (uint rotor_index = 0; rotor_index < uniforces_.size(); ++rotor_index) {
+						auto val = uniforces_.at(rotor_index)->getOutput().control_signal_input;
+						Logger_.write(val);
+					}
+					Logger_.endl();
+					Logger_.write("filtered:");
+					for (uint rotor_index = 0; rotor_index < uniforces_.size(); ++rotor_index) {
+						auto val1 = uniforces_.at(rotor_index)->getOutput().control_signal_filtered;
+						Logger_.write(val1);
+						auto val2 = uniforces_.at(rotor_index)->getOutput().thrust;
+						Logger_.write(val2);
+						auto val3 = uniforces_.at(rotor_index)->getOutput().torque_scaler;
+						Logger_.write(val3);
+					}
+					Logger_.endl();
+					Logger_.write("___________________________");
+					Logger_.endl();
 				}
 			}
 			/* Здесь обновляем */
@@ -285,6 +332,10 @@ namespace msr {
 			VehicleApiBase* vehicle_api_;
 
 			Vector3r _air_speed;
+
+			std::string plane_name_;
+			msr::airlib::LogFileWriter Logger_;
+			uint isFullLogging_ = 1;
 		};
 
 	}

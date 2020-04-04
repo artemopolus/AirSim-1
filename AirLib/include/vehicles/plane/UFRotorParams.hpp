@@ -7,6 +7,10 @@ namespace msr {
 		class UFRotorParams : public UniForceParams
 		{
 		public:
+			UFRotorParams()
+			{
+				initialize();
+			}
 			virtual void calculateMaxThrust() {
 				revolutions_per_second = max_rpm / 60;
 				max_speed = revolutions_per_second * 2 * M_PIf;  // radians / sec
@@ -26,7 +30,7 @@ namespace msr {
 				calculateMaxThrust();
 			}
 		private:
-			virtual void initialize()
+			void initialize() override
 			{
 				/*
 				Ref: http://physics.stackexchange.com/a/32013/14061
@@ -52,6 +56,7 @@ namespace msr {
 
 				max_thrust = 4.179446268f; //computed from above formula for the given constants
 				max_torque = 0.055562f; //computed from above formula
+				calculateMaxThrust();
 			}
 		};
 	}

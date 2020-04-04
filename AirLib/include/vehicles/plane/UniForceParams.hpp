@@ -48,7 +48,7 @@ namespace msr {
 		private:
 			virtual void initialize()
 			{
-				// do not do anything
+
 			}
 		};
 

@@ -16,7 +16,7 @@ namespace msr {
 				initialize(position, normal, turning_direction, environment, id);
 				setType(UniForceType::Rudder);
 			}
-			virtual void reportState(StateReporter& reporter) override
+			void reportState(StateReporter& reporter) override
 			{
 				reporter.writeValue("Dir", static_cast<int>(getTurningDirection()));
 				reporter.writeValue("Ctrl-in", getOutput().control_signal_input);
@@ -25,25 +25,25 @@ namespace msr {
 				reporter.writeValue("thrust", getOutput().thrust);
 				reporter.writeValue("torque", getOutput().torque_scaler);
 			}
-			virtual void setAirSpeed(Vector3r air_speed)
+			void setAirSpeed(Vector3r air_speed) override
 			{
 				_air_speed = air_speed;
 			}
-			virtual void setControlSignal(real_T control_signal) override
+			void setControlSignal(real_T control_signal) override
 			{
-				real_T ctrl = control_signal;
+				real_T ctrl = Utils::clip(control_signal, -1.0f, 1.0f);
 				UniForce::setControlSignal(ctrl);
 			}
 		
 		protected:
-			virtual void setWrench(Wrench& wrench) override
+			void setWrench(Wrench& wrench) override
 			{
 				Vector3r normal = getNormal();
 				wrench.force = normal * getOutput().thrust * getAirDensityRatio();
 				wrench.torque = Vector3r::Zero();
 			}
 		private:
-			virtual void setOutput(Output& output, const FirstOrderFilter<real_T>& control_signal_filter)
+			void setOutput(Output& output, const FirstOrderFilter<real_T>& control_signal_filter) override
 			{
 				output.control_signal_input = control_signal_filter.getInput();
 				output.control_signal_filtered = control_signal_filter.getOutput();
@@ -53,9 +53,13 @@ namespace msr {
 				output.torque_scaler = 0;
 				output.turning_direction = getTurningDirection();
 			}
-			virtual UniForceParams& getParams()
+			UniForceParams& getParams() const override
 			{
 				return (UniForceParams &)params_;
+			}
+			real_T getCtrlSigFltTC() const override
+			{
+				return params_->control_signal_filter_tc;
 			}
 		private:
 			UFRudderParams * params_;

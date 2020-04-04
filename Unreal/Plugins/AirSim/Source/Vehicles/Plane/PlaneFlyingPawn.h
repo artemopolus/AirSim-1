@@ -10,6 +10,9 @@
 
 #include "common/Common.hpp"
 
+/* Логирование */
+#include "common/LogFileWriter.hpp"
+
 #include "PlaneFlyingPawn.generated.h"
 
 UCLASS()
@@ -44,6 +47,9 @@ private: //variables
     static constexpr size_t rotor_count = 1;
     /* наши рули */
     static constexpr size_t rudder_count = 2;
+    /* логирование */
+    msr::airlib::LogFileWriter Logger_;
+    std::string logfilename_;
 
     UPROPERTY() APIPCamera* camera_front_left_;
     UPROPERTY() APIPCamera* camera_front_right_;

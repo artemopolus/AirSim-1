@@ -27,6 +27,12 @@ init->reset calls for base-derived class that would be incorrect.
 
 class UpdatableObject {
 public:
+	enum typeUpdObj : int {
+		unknown = 0,
+		plane = 1,
+		rotor = 2,
+		rudder = 3
+	};
     void reset()
     { 
         if (reset_in_progress)
@@ -72,7 +78,22 @@ public:
     {
         return ClockFactory::get();
     }
-
+	void setObjType(typeUpdObj type)
+	{
+		objtype_ = type;
+	}
+	typeUpdObj getObjType() const
+	{
+		return objtype_;
+	}
+	void setObjName(std::string name)
+	{
+		objname_ = name;
+	}
+	std::string getObjName() const
+	{
+		return objname_;
+	}
 protected:
     virtual void resetImplementation() = 0;
     virtual void failResetUpdateOrdering(std::string err)
@@ -84,6 +105,8 @@ private:
     bool reset_called = false;
     bool update_called = false;
     bool reset_in_progress = false;
+	typeUpdObj objtype_ = typeUpdObj::unknown;
+	std::string objname_ = "";
 };
 
 }} //namespace

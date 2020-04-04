@@ -7,6 +7,10 @@ namespace msr {
 		class UFRudderParams : public UniForceParams
 		{
 		public:
+			UFRudderParams()
+			{
+				initialize();
+			}
 			virtual void calculateMaxThrust() {
 				real_T value = 1.0f;
 				rudder_length_1 = value;
@@ -31,7 +35,7 @@ namespace msr {
 				return max_angle_1;
 			}
 		private:
-			virtual void initialize()
+			void initialize() override
 			{
 				/*
 

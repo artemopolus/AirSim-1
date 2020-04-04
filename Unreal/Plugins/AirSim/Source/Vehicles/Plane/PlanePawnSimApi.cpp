@@ -27,8 +27,9 @@ void PlanePawnSimApi::initialize()
     vehicle_params_ = PlaneParamsFactory::createConfig(getVehicleSetting(), sensor_factory);
     vehicle_api_ = vehicle_params_->createPlaneApi();
     //setup physics vehicle
+    std::string phys_vehicle_name = getVehicleSetting()->vehicle_name;
     phys_vehicle_ = std::unique_ptr<Plane>(new Plane(vehicle_params_.get(), vehicle_api_.get(),
-        getKinematics(), getEnvironment()));
+        getKinematics(), getEnvironment(), phys_vehicle_name));
     rotor_count_ = phys_vehicle_->wrenchVertexCount();
     rotor_info_.assign(rotor_count_, RotorInfo());
 
