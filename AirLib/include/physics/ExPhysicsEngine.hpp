@@ -380,6 +380,15 @@ namespace msr {
 				}
 				return wrench;
 			}
+			static float updateFriction(float force, float friction)
+			{
+				if (force < 0) {
+					return ((force + friction) < 0) ? (force + friction) : 0.0f;
+				}
+				else {
+					return ((force - friction) > 0) ? (force - friction) : 0.0f;
+				}
+			}
 			static bool getNextKinematicsOnCollision2(TTimeDelta dt, const CollisionInfo& collision_info, PhysicsBody& body,
 				const Kinematics::State& current, Kinematics::State& next, Wrench& next_wrench, bool enable_ground_lock, LogFileWriter & logger)
 			{
@@ -394,9 +403,17 @@ namespace msr {
 				//пересчитываем все силы и моменты: приложенные силы к объекту, реакции опоры, трение
 				const Vector3r norm_world = Vector3r(0, 0, 1);
 				const Eigen::Quaternionf q2collision = VectorMath::toQuaternion(norm_world, collision_info.normal);
-				Vector3r gravity_collision = VectorMath::transformToBodyFrame(body.getEnvironment().getState().gravity, q2collision);
-				Vector3r forces_collision = VectorMath::transformToBodyFrame(body_wrench.force, q2collision);
-				Vector3r reaction_collision = Vector3r(0,0,-gravity_collision.z());
+				//const Eigen::Quaternionf q2world = VectorMath::toQuaternion(collision_info.normal, norm_world);
+				Vector3r sum_force_world = body_wrench.force + body_wrench.torque.cross(r) 
+												+ body.getEnvironment().getState().gravity*body.getMass();
+				Vector3r sum_f_c = VectorMath::transformToBodyFrame(sum_force_world,q2collision);
+				float reaction = (sum_f_c.z() > 0)? 0:(-sum_f_c.z());
+				float friction = 0.5*reaction;
+				float x_f_c = updateFriction(sum_f_c.x(), friction);
+				float y_f_c = updateFriction(sum_f_c.y(), friction);
+				Vector3r res_sum = Vector3r(x_f_c, y_f_c, 0.0f);
+				Vector3r acc_sum = VectorMath::transformToWorldFrame(res_sum, q2collision) / body.getMass();
+
 				if (body.isGrounded()) //<- взлет или посадка
 				{
 
