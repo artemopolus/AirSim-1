@@ -317,6 +317,25 @@ namespace msr {
 				drag_vertices_.emplace_back(Vector3r(params.body_box.x(), 0, 0), Vector3r(1, 0, 0), drag_factor_unit.x());
 
 			}
+			virtual Vector3r getReaction( Vector3r & hitposition, Vector3r & hitnormal, const float mu, Vector3r & gravity) override
+			{
+
+				Vector3r result = Vector3r::Zero();
+				float g_value = std::abs(gravity.z());
+				if ((hitnormal.z() >= 0.9f) && (hitnormal.z() <= 1.0f)
+											&& (std::abs(hitposition.x()) < 0.05f)
+											&& (std::abs(hitposition.y()) < 0.05f)
+											&& (std::abs(hitposition.z()) < 0.05f))
+				{
+					float mass = this->getMass();
+					float radius = 0.5f;
+					float x, y, z;
+					x = y = mass * radius * g_value;
+					z = mass * radius * mu * g_value;
+					result = Vector3r(x, y, z);
+				}
+				return result;
+			}
 
 		private: //fields
 			PlaneParams* params_;

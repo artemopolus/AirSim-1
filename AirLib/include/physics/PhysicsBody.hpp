@@ -224,6 +224,16 @@ public: //methods
 	{
 		grounded_ = grounded;
 	}
+	virtual Vector3r getReaction( Vector3r & hitposition, Vector3r & hitnormal, const float mu, Vector3r & gravity)
+	{
+		unused(hitposition);
+		unused(hitnormal);
+		unused(gravity);
+		unused(mu);
+		//throw std::out_of_range("no get reaction is available"); 
+		Vector3r result  = Vector3r::Zero();
+		return result;
+	}
 
 public:
     //for use in physics engine: //TODO: use getter/setter or friend method?

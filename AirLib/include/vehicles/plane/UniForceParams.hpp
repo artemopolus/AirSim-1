@@ -36,14 +36,15 @@ namespace msr {
 
 			}
 			virtual void calculateMaxThrust() {
+				throw std::out_of_range("no max thrust are available");
 			}
 			virtual void calculateMaxThrust( real_T value) {
 				unused(value);
-				 throw std::out_of_range("no physics vertex are available");
+				 throw std::out_of_range("no max thrust are available");
 			}
 			virtual void calculateMaxThrust( real_T datamass[] ) {
 				unused(datamass);
-				 throw std::out_of_range("no physics vertex are available");
+				 throw std::out_of_range("no max thrust are available");
 			}
 		private:
 			virtual void initialize()
