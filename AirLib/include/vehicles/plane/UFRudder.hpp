@@ -26,10 +26,7 @@ namespace msr {
 				reporter.writeValue("thrust", getOutput().thrust);
 				reporter.writeValue("torque", getOutput().torque_scaler);
 			}
-			void setAirSpeed(Vector3r air_speed) override
-			{
-				air_speed_ = air_speed;
-			}
+			
 			void setControlSignal(real_T control_signal) override
 			{
 				real_T ctrl = Utils::clip(control_signal, -1.0f, 1.0f);
@@ -41,7 +38,7 @@ namespace msr {
 			{
 				Vector3r normal = getNormal();
 				wrench.force = normal * getOutput().thrust * getAirDensityRatio();
-				wrench.torque = Vector3r::Zero();
+				wrench.torque = Vector3r(0,0,0);
 			}
 		private:
 			void setOutput(Output& output, const FirstOrderFilter<real_T>& control_signal_filter) override
@@ -64,7 +61,6 @@ namespace msr {
 			}
 		private:
 			UFRudderParams * params_;
-			Vector3r air_speed_;
 		};
 	}
 }

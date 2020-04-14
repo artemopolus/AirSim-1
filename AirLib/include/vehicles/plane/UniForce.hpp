@@ -60,9 +60,13 @@ namespace msr {
 			{
 				return output_.type;
 			}
-			virtual void setAirSpeed(Vector3r air_speed)
+			void setAirSpeed(Vector3r air_speed)
 			{
-				unused(air_speed);
+				air_speed_ = air_speed;
+			}
+			Vector3r getAirSpeed() const
+			{
+				return air_speed_;
 			}
 			void setForwardProjection(Vector3r norm)
 			{
@@ -158,6 +162,7 @@ namespace msr {
 			
 
 			Vector3r _wind_force;
+			Vector3r air_speed_;
 		};
 
 
