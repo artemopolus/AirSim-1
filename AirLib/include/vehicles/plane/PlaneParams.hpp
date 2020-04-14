@@ -11,6 +11,7 @@
 #include "UniForce.hpp"
 #include "UFRotorParams.hpp"
 #include "UFRudderParams.hpp"
+#include "UFWingParams.hpp"
 #include "sensors/SensorCollection.hpp"
 #include "sensors/SensorFactory.hpp"
 #include "vehicles/plane/api/PlaneApiBase.hpp"
@@ -60,6 +61,7 @@ namespace msr {
 				//UniForceParams force_params;
 				UFRotorParams * ufrotor_params = new UFRotorParams();
 				UFRudderParams * ufrudder_params = new UFRudderParams();
+				UFWingParams *ufwing_params = new UFWingParams();
 			};
 
 
@@ -118,6 +120,7 @@ namespace msr {
 				uint rotor_count, /* TODO должно быть один сейчас */
 				//vector<RotorPose>& rudder_poses, /* рули */
 				uint rudder_count, /* TODO должно быть два сейчас */
+				uint wing_count,
 				real_T arm_lengths[], /* расстояния */
 				real_T rotor_z /* z relative to center of gravity */
 			)
@@ -134,7 +137,7 @@ namespace msr {
 					  Noth East Down (NED)
 				*/
 				Vector3r unit_z(0, 0, -1);  //NED frame
-				if (rotor_count == 1 && rudder_count == 2)
+				if (rotor_count == 1 && rudder_count == 2 && wing_count == 1)
 				{
 					rotor_poses.clear();
 					//rudder_poses.clear();
@@ -149,6 +152,7 @@ namespace msr {
 						unit_z, RotorTurningDirection::RotorTurningDirectionCW);
 					rotor_poses.emplace_back(VectorMath::rotateVector(Vector3r(0, -arm_lengths[2], rotor_z), hexa_rot60, true),
 						unit_z, RotorTurningDirection::RotorTurningDirectionCW);
+					rotor_poses.emplace_back(Vector3r(0, 0, 0), unit_z, RotorTurningDirection::RotorTurningDirectionCW);
 				}
 				else
 					throw std::invalid_argument("This count of rotors and rudders is not supported by this method!");

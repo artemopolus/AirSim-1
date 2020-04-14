@@ -189,6 +189,8 @@
     <ClInclude Include="include\vehicles\plane\UFRotorParams.hpp" />
     <ClInclude Include="include\vehicles\plane\UFRudder.hpp" />
     <ClInclude Include="include\vehicles\plane\UFRudderParams.hpp" />
+    <ClInclude Include="include\vehicles\plane\UFWing.hpp" />
+    <ClInclude Include="include\vehicles\plane\UFWingParams.hpp" />
     <ClInclude Include="include\vehicles\plane\UniForce.hpp" />
     <ClInclude Include="include\vehicles\plane\UniForceParams.hpp" />
   </ItemGroup>

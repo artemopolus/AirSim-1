@@ -358,7 +358,7 @@ namespace msr {
 
 				}*/
 				if (body.getObjType() == UpdatableObject::typeUpdObj::plane)
-					logger.write("wrench");
+					logger.write("[plane wrench]");
 
 				//calculate total force on rigid body's center of gravity
 				for (uint i = 0; i < body.wrenchVertexCount(); ++i) {
@@ -366,7 +366,24 @@ namespace msr {
 					const PhysicsBodyVertex& vertex = body.getWrenchVertex(i);
 					const auto& vertex_wrench = vertex.getWrench();
 					wrench += vertex_wrench;
-
+					if (vertex.getObjType() == UpdatableObject::typeUpdObj::rotor) {
+						logger.write("rotor");
+					}
+					else if (vertex.getObjType() == UpdatableObject::typeUpdObj::rudder) {
+						logger.write("rudder");
+					}
+					else if (vertex.getObjType() == UpdatableObject::typeUpdObj::rudder) {
+						logger.write("rudder");
+					}
+					else {
+						logger.write("unknown");
+					}
+					logger.write("force");
+					logger.write(vertex_wrench.force);
+					logger.write("torque");
+					logger.write(vertex_wrench.torque);
+					logger.write("pos");
+					logger.write(vertex.getPosition());
 					//add additional torque due to force applies farther than COG
 					// tau = r X F
 					wrench.torque += vertex.getPosition().cross(vertex_wrench.force);

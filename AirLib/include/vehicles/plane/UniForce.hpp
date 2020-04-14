@@ -28,6 +28,7 @@ namespace msr {
 			};
 			struct Output {
 				real_T thrust;
+				real_T resistance;
 				real_T torque_scaler;
 				real_T speed;
 				real_T angle;
@@ -62,6 +63,10 @@ namespace msr {
 			virtual void setAirSpeed(Vector3r air_speed)
 			{
 				unused(air_speed);
+			}
+			void setForwardProjection(Vector3r norm)
+			{
+				unused( norm);
 			}
 			//0 to 1 - will be scaled to 0 to max_speed
 			virtual void setControlSignal(real_T control_signal)

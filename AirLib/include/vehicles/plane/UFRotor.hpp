@@ -14,6 +14,7 @@ namespace msr { namespace airlib {
 			{
 				initialize(position, normal, turning_direction, environment, id);
 				setType(UniForceType::Rotor);
+				setObjType(UpdatableObject::typeUpdObj::rotor);
 			}
 			void reportState(StateReporter& reporter) override
 			{
@@ -26,7 +27,7 @@ namespace msr { namespace airlib {
 			}
 			void setAirSpeed(Vector3r air_speed) override
 			{
-				unused(air_speed);
+				air_speed_ = air_speed;
 			}
 			void setControlSignal(real_T control_signal) override
 			{
@@ -39,7 +40,7 @@ namespace msr { namespace airlib {
 			{
 				Vector3r normal = getNormal();
 				//forces and torques are proportional to air density: http://physics.stackexchange.com/a/32013/14061
-				wrench.force = normal * getOutput().thrust * getAirDensityRatio();
+				wrench.force = normal * (getOutput().thrust  - getOutput().resistance)* getAirDensityRatio();
 				wrench.torque = normal * getOutput().torque_scaler * getAirDensityRatio(); //TODO: try using filtered control here
 			}
 		private:
@@ -52,6 +53,7 @@ namespace msr { namespace airlib {
 				output.thrust = output.control_signal_filtered * params_->max_thrust;
 				output.torque_scaler = output.control_signal_input * params_->max_torque * static_cast<int>(getTurningDirection());
 				output.turning_direction = getTurningDirection();
+				output.resistance = -std::abs(air_speed_.x()) * air_speed_.x() * params_->getMultiResistance();
 			}
 			UniForceParams& getParams() const override
 			{
@@ -63,6 +65,7 @@ namespace msr { namespace airlib {
 			}
 		private:
 			UFRotorParams * params_;
+			Vector3r air_speed_;
 		};
 }}
 

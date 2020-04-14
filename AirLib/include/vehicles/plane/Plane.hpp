@@ -19,6 +19,7 @@
 #include "UniForce.hpp"
 #include "UFRotor.hpp"
 #include "UFRudder.hpp"
+#include "UFWing.hpp"
 
 
 namespace msr {
@@ -88,8 +89,18 @@ namespace msr {
 
 				//update controller which will update actuator control signal
 				vehicle_api_->update();
+				orientation_ = getKinematics().pose.orientation;
 
-				_air_speed = getEnvironment().getState().air_wind.getValue() + getKinematics().twist.linear;
+				Vector3r air_speed_tmp = getEnvironment().getState().air_wind.getValue() + getKinematics().twist.linear;
+				air_speed_ = VectorMath::transformToBodyFrame(air_speed_tmp, orientation_);
+
+				if (isFullLogging_) {
+					Logger_.write("air speed");
+					Logger_.write(air_speed_);
+					Logger_.write("orientation");
+					Logger_.write(orientation_);
+					Logger_.endl();
+				}
 
 				//transfer new input values from controller to rotors
 				if (isFullLogging_)
@@ -108,12 +119,14 @@ namespace msr {
 					uniforces_[1]->setControlSignal(vehicle_api_->getActuation(0));
 					uniforces_[2]->setControlSignal(vehicle_api_->getActuation(1));
 
-					uniforces_[1]->setAirSpeed(_air_speed);
-					uniforces_[2]->setAirSpeed(_air_speed);
+					uniforces_[0]->setAirSpeed(air_speed_);
+					uniforces_[1]->setAirSpeed(air_speed_);
+					uniforces_[2]->setAirSpeed(air_speed_);
+					uniforces_[3]->setAirSpeed(air_speed_);
 				}
 				//for (uint rotor_index = 0; rotor_index < uniforces_.size(); ++rotor_index) {
 				//	//rotors_.at(rotor_index).setControlSignal(vehicle_api_->getActuation(rotor_index));
-				//	uniforces_.at(rotor_index)->setAirSpeed(_air_speed);
+				//	uniforces_.at(rotor_index)->setAirSpeed(air_speed_);
 				//	auto val = vehicle_api_->getActuation(rotor_index);
 				//	Logger_.write(val);
 				//	uniforces_.at(rotor_index)->setControlSignal(val);
@@ -129,12 +142,15 @@ namespace msr {
 					Logger_.endl();
 					Logger_.write("filtered:");
 					for (uint rotor_index = 0; rotor_index < uniforces_.size(); ++rotor_index) {
+						const auto force_info = uniforces_.at(rotor_index)->getObjType();
+						writeType2logger(force_info);
 						auto val1 = uniforces_.at(rotor_index)->getOutput().control_signal_filtered;
 						Logger_.write(val1);
 						auto val2 = uniforces_.at(rotor_index)->getOutput().thrust;
 						Logger_.write(val2);
 						auto val3 = uniforces_.at(rotor_index)->getOutput().torque_scaler;
 						Logger_.write(val3);
+						auto val4 = uniforces_.at(rotor_index)->getOutput().resistance;
 					}
 					Logger_.endl();
 					Logger_.write("___________________________");
@@ -165,7 +181,6 @@ namespace msr {
 			}
 			virtual const PhysicsBodyVertex& getWrenchVertex(uint index) const override
 			{
-				//return rotors_.at(index);
 				return *uniforces_.at(index);
 			}
 
@@ -215,7 +230,21 @@ namespace msr {
 
 				initSensors(*params_, getKinematics(), getEnvironment());
 			}
-
+			void writeType2logger(UpdatableObject::typeUpdObj type)
+			{
+				if (type == UpdatableObject::typeUpdObj::rotor) {
+					Logger_.write("Rotor");
+				}
+				else if (type == UpdatableObject::typeUpdObj::rudder) {
+					Logger_.write("Rudder");
+				}
+				else if (type == UpdatableObject::typeUpdObj::wing) {
+					Logger_.write("Wing");
+				}
+				else {
+					Logger_.write("UnknownType");
+				}
+			}
 			//static void createRotors(const PlaneParams& params, vector<Rotor>& rotors, const Environment* environment)
 			//{
 			//	rotors.clear();
@@ -258,8 +287,14 @@ namespace msr {
 							(UFRudderParams::UniForceDirection) rotor_pose.direction,
 							params.getParams().ufrudder_params, environment, i));
 					}
-					else if (params.getParams().wing_count)
-					{ }
+					else if (params.getParams().wing_count){
+						uniforces.emplace_back(new UFWing(
+							rotor_pose.position,
+							rotor_pose.normal,
+							(UFWingParams::UniForceDirection) rotor_pose.direction,
+							params.getParams().ufwing_params, environment, i
+						));
+					}
 				}
 			}
 
@@ -350,7 +385,8 @@ namespace msr {
 			std::unique_ptr<Environment> environment_;
 			VehicleApiBase* vehicle_api_;
 
-			Vector3r _air_speed;
+			Vector3r air_speed_;
+			Quaternionr orientation_;
 
 			std::string plane_name_;
 			msr::airlib::LogFileWriter Logger_;

@@ -31,7 +31,8 @@ public:
 		unknown = 0,
 		plane = 1,
 		rotor = 2,
-		rudder = 3
+		rudder = 3,
+		wing = 4
 	};
     void reset()
     { 

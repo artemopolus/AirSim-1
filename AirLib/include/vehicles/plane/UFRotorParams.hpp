@@ -29,6 +29,10 @@ namespace msr {
 				air_density = datamass[2];
 				calculateMaxThrust();
 			}
+			real_T getMultiResistance() const
+			{
+				return multiR;
+			}
 		private:
 			void initialize() override
 			{
@@ -57,7 +61,10 @@ namespace msr {
 				max_thrust = 4.179446268f; //computed from above formula for the given constants
 				max_torque = 0.055562f; //computed from above formula
 				calculateMaxThrust();
+				multiR = 0.000005f;
 			}
+		private:
+			real_T multiR;
 		};
 	}
 }

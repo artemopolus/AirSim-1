@@ -15,6 +15,7 @@ namespace msr {
 			{
 				initialize(position, normal, turning_direction, environment, id);
 				setType(UniForceType::Rudder);
+				setObjType(UpdatableObject::typeUpdObj::rudder);
 			}
 			void reportState(StateReporter& reporter) override
 			{
@@ -27,7 +28,7 @@ namespace msr {
 			}
 			void setAirSpeed(Vector3r air_speed) override
 			{
-				_air_speed = air_speed;
+				air_speed_ = air_speed;
 			}
 			void setControlSignal(real_T control_signal) override
 			{
@@ -63,7 +64,7 @@ namespace msr {
 			}
 		private:
 			UFRudderParams * params_;
-			Vector3r _air_speed;
+			Vector3r air_speed_;
 		};
 	}
 }

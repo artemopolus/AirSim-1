@@ -55,7 +55,7 @@ namespace msr {
 			{
 				params.rotor_count = 1;
 				params.rudder_count = 2;
-				params.wing_count = 0;
+				params.wing_count = 1;
 				std::vector<real_T> arm_length;
 				std::vector<real_T> rudder_length(params.rudder_count, 0.5f);
 				arm_length.emplace_back(0.3f); // расстояние до ротора
@@ -74,6 +74,7 @@ namespace msr {
 				initializeSimplePlane(params.rotor_poses, params.rotor_count, 
 										//params.rudder_poses, /* нужно ли вообще отдельный класс? */
 										params.rudder_count,
+										params.wing_count,
 										arm_length.data(), rotor_z);
 				//compute inertia matrix
 				computeInertiaMatrix(params.inertia, params.body_box, params.rotor_poses, box_mass, motor_assembly_weight);
