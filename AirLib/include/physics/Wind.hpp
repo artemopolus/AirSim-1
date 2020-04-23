@@ -8,7 +8,10 @@ namespace msr { namespace airlib {
 	{
 	public:
 
-
+		Wind()
+		{
+			initialize();
+		}
 		virtual Vector3r getValue() const
 		{
 			return _wind_force;

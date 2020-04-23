@@ -10,11 +10,7 @@ namespace msr { namespace airlib {
 		class VolumeForce
 		{
 		public:
-			 VolumeForce()
-			{
-				initialize();
-			}
-			virtual ~VolumeForce()
+ 			virtual ~VolumeForce()
 			{			}
 			virtual Vector3r getValue() const
 			{	

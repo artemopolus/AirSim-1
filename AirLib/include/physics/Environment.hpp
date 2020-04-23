@@ -25,7 +25,7 @@ public:
         real_T temperature;
         real_T air_density;
 		/* встраиваем ветер */
-		Wind air_wind;
+		Vector3r air_wind = Vector3r::Zero();
 
         State()
         {}
@@ -113,6 +113,7 @@ private:
 
         //TODO: avoid recalculating square roots
         state.gravity = Vector3r(0, 0, EarthUtils::getGravity(state.geo_point.altitude));
+		state.air_wind = Vector3r(0, 0, 0);
     }
 
 private:

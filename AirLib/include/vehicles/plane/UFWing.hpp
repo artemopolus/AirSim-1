@@ -16,7 +16,8 @@ namespace msr {
 			{
 				initialize(position, normal, turning_direction, environment, id);
 				setType(UniForceType::Wing);
-				setObjType(UpdatableObject::typeUpdObj::rotor);
+				setObjType(UpdatableObject::typeUpdObj::wing);
+				params_->calculateMaxThrust();
 			}
 			void reportState(StateReporter& reporter) override
 			{
@@ -47,10 +48,10 @@ namespace msr {
 				output.control_signal_filtered = 0.0f;
 				//see relationship of rotation speed with thrust: http://physics.stackexchange.com/a/32013/14061
 				output.speed = 0.0f;
-				output.thrust = getAirSpeed().x() * getAirSpeed().x() * params_->getMlift * static_cast<int>(getTurningDirection());
+				output.thrust = getAirSpeed().x() * getAirSpeed().x() * params_->getMlift() * static_cast<int>(getTurningDirection());
 				output.torque_scaler = 0.0f;
 				output.turning_direction = getTurningDirection();
-				output.resistance = -std::abs(getAirSpeed().z()) * getAirSpeed().z() * params_->getMresi;
+				output.resistance = -std::abs(getAirSpeed().z()) * getAirSpeed().z() * params_->getMresi();
 			}
 			UniForceParams& getParams() const override
 			{

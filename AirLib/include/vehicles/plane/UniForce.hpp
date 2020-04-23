@@ -49,6 +49,7 @@ namespace msr {
 				air_density_sea_level_ = EarthUtils::getAirDensity(0.0f);
 				real_T csf_tc = this->getCtrlSigFltTC();
 				control_signal_filter_.initialize(csf_tc, 0, 0);
+				air_speed_ = Vector3r::Zero();
 
 				PhysicsBodyVertex::initialize(position, normal);   //call base initializer
 			}
@@ -146,7 +147,6 @@ namespace msr {
 				//update air density ration - this will affect generated force and torques by rotors
 				air_density_ratio_ = environment_->getState().air_density / air_density_sea_level_;
 
-				_wind_force = environment_->getState().air_wind.getValue();
 			}
 			virtual UniForceParams& getParams() const = 0;
 			virtual real_T getCtrlSigFltTC() const = 0;
@@ -161,7 +161,6 @@ namespace msr {
 			Output output_;
 			
 
-			Vector3r _wind_force;
 			Vector3r air_speed_;
 		};
 

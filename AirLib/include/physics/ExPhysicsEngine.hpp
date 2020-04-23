@@ -84,16 +84,19 @@ namespace msr {
 				Wrench next_wrench;
 				/*plane_logger_.write("ORIENTATION \t >>>> [");
 				plane_logger_.write(current.pose.orientation);
-				plane_logger_.write("]\n");
-				plane_logger_.write("VELOCITY \t >>>> [");
-				plane_logger_.write(current.twist.linear);
-				plane_logger_.write("]\n");
-				plane_logger_.write("POSITION \t >>>> [");
+				plane_logger_.write("]\n");*/
+				plane_logger_.write("=======================\n===========NEW UPDATE\npos \t  [");
 				plane_logger_.write(current.pose.position);
-				plane_logger_.write("]\n");
-				plane_logger_.write("ACC  LIN \t >>>> [");
+				plane_logger_.write("]\nvel lin \t  [");
+				plane_logger_.write(current.twist.linear);
+				plane_logger_.write("]\nacc \t  [");
 				plane_logger_.write(current.accelerations.linear);
+				plane_logger_.write("]\nvel ang \t  [");
+				plane_logger_.write(current.twist.angular);
+				plane_logger_.write("]\nacc \t  [");
+				plane_logger_.write(current.accelerations.angular);
 				plane_logger_.write("]\n");
+				/*
 				plane_logger_.write("ACC  ANG \t >>>> [");
 				plane_logger_.write(current.accelerations.angular);
 				plane_logger_.write("]\n");*/
@@ -106,13 +109,22 @@ namespace msr {
 				//if there is collision, see if we need collision response
 				const CollisionInfo collision_info = body.getCollisionInfo();
 				CollisionResponse& collision_response = body.getCollisionResponseInfo();
+				plane_logger_.write("===============[COLLISION INFO]:");
 				if (collision_info.has_collided) {
+					plane_logger_.write("HAS COLLIDED\n");
 					bool is_collision_response = getNextKinematicsOnCollision2(dt, collision_info, body, current,
 						next, next_wrench, enable_ground_lock_, plane_logger_);
-					if (collision_response.collision_time_stamp != collision_info.time_stamp)
+					plane_logger_.write("================UPDATE COLLISION RESPONSE:");
+					if (collision_response.collision_time_stamp != collision_info.time_stamp) {
+						plane_logger_.write("YES\n");
 						updateCollisionResponseInfo(collision_info, next, is_collision_response, collision_response);
+					}
+					else {
+						plane_logger_.write("NO\n");
+					}
 				}
 				else {
+					plane_logger_.write("NO\n");
 					getNextKinematicsNoCollision2(dt, body, current, next, next_wrench, plane_logger_);
 				}
 				//if collision was already responded then do not respond to it until we get updated information
@@ -129,13 +141,18 @@ namespace msr {
 				//    VectorMath::toString(next.twist.linear).c_str(), clock()->getStepCount()));
 
 				body.setWrench(next_wrench);
-				/*plane_logger_.write("KINEMATICS\n_____________________\n");
-				plane_logger_.write("next twist linear (");
+				plane_logger_.write("[UPDATE KINEMATICS]\n=======================\n");
+				plane_logger_.write("pos [");
+				plane_logger_.write(next.pose.position);
+				plane_logger_.write("]\nvel lin [");
 				plane_logger_.write(next.twist.linear);
-				plane_logger_.write(")\n");
-				plane_logger_.write("next twist angular (");
+				plane_logger_.write("acc [");
+				plane_logger_.write(next.accelerations.linear);
+				plane_logger_.write("] vel ang [");
 				plane_logger_.write(next.twist.angular);
-				plane_logger_.write(")\n______________________\n");*/
+				plane_logger_.write("acc [");
+				plane_logger_.write(next.accelerations.angular);
+				plane_logger_.write("]\n========================\n==========END UPDATE");
 				body.updateKinematics(next);
 
 
@@ -372,8 +389,8 @@ namespace msr {
 					else if (vertex.getObjType() == UpdatableObject::typeUpdObj::rudder) {
 						logger.write("rudder");
 					}
-					else if (vertex.getObjType() == UpdatableObject::typeUpdObj::rudder) {
-						logger.write("rudder");
+					else if (vertex.getObjType() == UpdatableObject::typeUpdObj::wing) {
+						logger.write("wing");
 					}
 					else {
 						logger.write("unknown");
@@ -547,30 +564,45 @@ namespace msr {
 			{
 				const float vertical_velocity_collision = collision_info.normal.dot(next.twist.linear);
 				const bool is_horizontal_ground = Utils::isApproximatelyEqual(std::abs(collision_info.normal.z()), 1.0f, kAxisTolerance);
-				if (vertical_velocity_collision > 0.0f) {
-					logger.write("[COLLISION] out ground \r\n");
+				const float eqzerovelocity = 0.001f;
+				logger.write("===================COLLISion ");
+				if ((vertical_velocity_collision > -eqzerovelocity)&&(vertical_velocity_collision < eqzerovelocity)) {
+					logger.write("stay ground \r\n");
 					body.setGrounded(false);
 				}
-				else {
-					logger.write("[COLLISION] in impact \r\n");
+				else if(vertical_velocity_collision >= eqzerovelocity ) {
+					logger.write(" penetrate \r\n");
 					body.setGrounded(true);
+				}
+				else {
+					logger.write(" off impact \r\n");
+
 				}
 				const real_T dt_real = static_cast<real_T>(dt);
 				const Wrench body_wrench = next_wrench;
-				bool is_force = false;
-				if (!Utils::isApproximatelyEqual(std::abs(body_wrench.force.x()), 0.0f, 0.01f))
-					is_force = true;
+				bool is_force = true;
 				if (is_force) {
-					logger.write(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n");
-					logger.write("[INPUT wrench] force");
+					logger.write("=================================================\n");
+					logger.write("===================[INPUT wrench]\nforce");
 					logger.write(body_wrench.force);
-					logger.write("torque");
+					logger.write("\ntorque");
 					logger.write(body_wrench.torque);
-					logger.write("velocity linear");
+					logger.write("\nvel lin");
 					logger.write(current.twist.linear);
-					logger.write("acceleration");
+					logger.write("acc");
 					logger.write(current.accelerations.linear);
-
+					logger.write("\nvel ang");
+					logger.write(current.twist.angular);
+					logger.write("acc");
+					logger.write(current.accelerations.angular);
+					logger.write("\n[collision] impact point");
+					logger.write(collision_info.impact_point);
+					logger.write("position");
+					logger.write(collision_info.position);
+					logger.write("normal");
+					logger.write(collision_info.normal);
+					logger.write("penetr depth");
+					logger.write(collision_info.penetration_depth);
 					logger.endl();
 				}
 
@@ -594,19 +626,7 @@ namespace msr {
 				float reaction = (sum_f_c.z() > 0) ? 0 : (-sum_f_c.z());
 				float mu = 0.0005f;
 				float frc_friction = mu * reaction;
-				if (is_force) {
-					logger.write("[Collision projection]: ");
-					logger.write(sum_f_c);
-					logger.write("| world ");
-					logger.write(sum_force_world);
-					logger.write("| friction ");
-					logger.write(frc_friction);
-					logger.write("| vel linear");
-					logger.write(vel_c);
-					logger.write("| vel angular ");
-					logger.write(ang_c);
-					logger.endl();
-				}
+				
 				float x_f_c, y_f_c, x_v_c = vel_c.x(), y_v_c = vel_c.y();
 				resForceFromFriction(sum_f_c.x(), frc_friction, body.getMass(), dt_real, x_f_c, x_v_c, logger);
 				resForceFromFriction(sum_f_c.y(), frc_friction, body.getMass(), dt_real, y_f_c, y_v_c, logger);
@@ -614,7 +634,25 @@ namespace msr {
 				Vector3r res_a_lin_c = Vector3r(x_f_c, y_f_c, z_f_c);
 				Vector3r res_v_lin_c = Vector3r(x_v_c, y_v_c, vel_c.z() + z_f_c * dt_real);
 
-
+				if (is_force) {
+					logger.write("============CALC SUM FORCES\nsum force world");
+					logger.write(sum_force_world);
+					logger.write("Collision projection ");
+					logger.write(sum_f_c);
+					logger.write("\nreaction ");
+					logger.write(reaction);
+					logger.write("friction ");
+					logger.write(frc_friction);
+					logger.write("vel lin");
+					logger.write(vel_c);
+					logger.write("ang ");
+					logger.write(ang_c);
+					logger.write("\nRESULT acc");
+					logger.write(res_a_lin_c);
+					logger.write("vel");
+					logger.write(res_v_lin_c);
+					logger.endl();
+				}
 				Vector3r reaction_c = Vector3r(0, 0, reaction);
 				Vector3r sum_m_c = reaction_c.cross(r_c) + torq_c;
 				Vector3r m_friction = Vector3r(frc_friction, frc_friction, 0).cross(r_c);
@@ -622,7 +660,7 @@ namespace msr {
 				Vector3r res_a_ang_c;
 				Vector3r res_v_ang_c = ang_c;
 				Vector3r m_reaction = body.getReaction(r_inv_c, hitnorm_c, mu, gravity_c);
-				logger.write("[INPUT REACTION] ");
+				logger.write("============CALC MOMENTUM\nr_inv_c");
 				logger.write(r_inv_c);
 				logger.write("[hitnorm_c] ");
 				logger.write(hitnorm_c);
@@ -632,53 +670,47 @@ namespace msr {
 					body.getInertiaInv(), dt_real,
 					res_a_ang_c, res_v_ang_c, logger);
 
+				next.twist.linear = VectorMath::transformToWorldFrame(res_v_lin_c, q2collision);
 				next.accelerations.linear = VectorMath::transformToWorldFrame(res_a_lin_c, q2collision);
+				next.twist.angular = VectorMath::transformToWorldFrame(res_v_ang_c, q2collision);
 				next.accelerations.angular = VectorMath::transformToWorldFrame(res_a_ang_c, q2collision);
 
 				if (is_force) {
-					logger.write("[body position]");
+					logger.write("=============CALC IMPULSE\nBODY[position]");
 					logger.write(body.getPose().position);
 					real_T pitch, roll, yaw;
 					VectorMath::toEulerianAngle(body.getPose().orientation, pitch, roll, yaw);
-					logger.write("\n[body orientation]");
+					logger.write("\n[orientation]");
 					float unit = 180 / M_PI;
 					logger.write(Vector3r(pitch*unit, roll*unit, yaw*unit));
 					Vector3r norm = Vector3r(0, 0, 1);
 					norm = VectorMath::transformToBodyFrame(norm, body.getPose().orientation);
-					logger.write("\n[body norm]");
+					logger.write("\n[norm]");
 					logger.write(norm);
-					logger.write("\n[collision]");
-					logger.write(collision_info.impact_point);
-					logger.write("|");
-					logger.write(collision_info.position);
-					logger.write("|");
-					logger.write(collision_info.normal);
-					logger.write("|hitnormal");
+					logger.write("\n[COLLISION projection]hitnormal");
 					logger.write(hitnorm_c);
-					logger.write("| r_inv");
+					logger.write("r_inv");
 					logger.write(r_inv_c);
-					logger.write("| g_c");
+					logger.write("g_c");
 					logger.write(gravity_c);
-					logger.write("|");
-					logger.write(collision_info.penetration_depth);
-					logger.write("\n[r]");
+					logger.write("r");
 					logger.write(r);
-					logger.write("|");
+					logger.write("r_c");
 					logger.write(r_c);
-					logger.write("\n[MOMENTUM]");
+					logger.write("\n[MOMENTUM] SUM");
 					logger.write(sum_m_c);
-					logger.write("\n[MOM FRIC]");
+					logger.write("FRIC");
 					logger.write(m_friction);
-					logger.write("\n[MOM REAC]");
+					logger.write("REAC");
 					logger.write(m_reaction);
 					logger.write("\n[RESULT velocity] linear");
-					logger.write(res_v_lin_c);
+					logger.write(next.twist.linear);
 					logger.write("acc");
-					logger.write(res_a_lin_c);
+					logger.write(next.accelerations.linear);
 					logger.write("angular ");
-					logger.write(res_v_ang_c);
+					logger.write(next.twist.angular);
 					logger.write("acc");
-					logger.write(res_a_ang_c);
+					logger.write(next.accelerations.angular);
 					logger.endl();
 				}
 
@@ -709,16 +741,17 @@ namespace msr {
 					logger.write(vertical_velocity_after_forcescalc);
 					logger.endl();
 				}
+				logger.write("[AFTER FRC CALC");
 				if ((vertical_velocity_after_forcescalc > -0.05f) && (vertical_velocity_after_forcescalc <= 0.05f)) {
-					logger.write("[AFTER FRC CALC NO COLLISION]");
+					logger.write(" NO COLLISION]");
 					friction = 0.0f;
 				}
 				else if (vertical_velocity_after_forcescalc > 0.05f) {
-					logger.write("[after frc calc out ground]");
+					logger.write("out ground]");
 					friction = 1.0f;
 				}
 				else {
-					logger.write("[after frc calc IN PENETR ground]");
+					logger.write("IN PENETR ground]");
 				}
 				const bool is_ground_normal = Utils::isApproximatelyEqual(std::abs(normal_body.z()), 1.0f, kAxisTolerance);
 				//	const bool is_landing = z_vel > std::abs(vcur_avg.x()) && z_vel > std::abs(vcur_avg.y()); // <- бессмысленно для самолета
@@ -734,8 +767,10 @@ namespace msr {
 					.cross(r)
 					.dot(normal_body);
 				const real_T impulse_mag = -contact_vel_body.dot(normal_body) * (1 + restitution) / impulse_mag_denom;
-				next.twist.linear = vcur_avg + collision_info.normal * (impulse_mag / body.getMass());
-				next.twist.angular = angular_avg + r.cross(normal_body) * impulse_mag;
+				if (false) {
+					next.twist.linear = vcur_avg + collision_info.normal * (impulse_mag / body.getMass());
+					next.twist.angular = angular_avg + r.cross(normal_body) * impulse_mag;
+				}
 				if (is_force) {
 					logger.write("[calc impulse] impulse");
 					logger.write(impulse_mag_denom);
@@ -753,31 +788,39 @@ namespace msr {
 					.cross(r_body).dot(normal_body);
 				const real_T friction_mag = -contact_tang_body.norm() * friction / friction_mag_denom;
 				const Vector3r contact_tang_unit = VectorMath::transformToWorldFrame(contact_tang_unit_body, current.pose.orientation);
-				next.twist.linear += contact_tang_unit * friction_mag;
-				next.twist.angular += r.cross(contact_tang_unit_body) * (friction_mag / body.getMass());
+				if (false) {
+					next.twist.linear += contact_tang_unit * friction_mag;
+					next.twist.angular += r.cross(contact_tang_unit_body) * (friction_mag / body.getMass());
+				}
 				//TODO: implement better rolling friction
-				next.twist.angular *= 0.9f;
+				if (false) {
+					next.twist.angular *= 0.9f;
+				}
 				/*next.accelerations.linear = acc_sum_f_w;
 				next.accelerations.angular = ang_sum_m_w;*/
 				if (is_force) {
-					logger.write("friction");
+					logger.write("[friction]");
 					logger.write(friction);
-					logger.write("friction_mag_denom");
+					logger.write("mag_denom");
 					logger.write(friction_mag_denom);
 					logger.write("version 2");
 					logger.write(friction_mag_denom2);
-					logger.write("friction_mag");
+					logger.write("mag");
 					logger.write(friction_mag);
 					logger.write("contact tang body");
 					logger.write(contact_tang_body);
-					logger.write("contact tang body norm");
+					logger.write("norm");
 					logger.write(contact_tang_body.norm());
-					logger.write("contact tang body normalized");
+					logger.write("normalized");
 					logger.write(contact_tang_body.normalized());
-					logger.write("\n[OUTPUT velocity] linear");
+					logger.write("\n=======================[OUTPUT]\n velocity linear");
 					logger.write(next.twist.linear);
+					logger.write("acc");
+					logger.write(next.accelerations.linear);
 					logger.write("angular");
 					logger.write(next.twist.angular);
+					logger.write("acc");
+					logger.write(next.accelerations.angular);
 					logger.endl();
 				}
 

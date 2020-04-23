@@ -90,14 +90,20 @@ namespace msr {
 				//update controller which will update actuator control signal
 				vehicle_api_->update();
 				orientation_ = getKinematics().pose.orientation;
-
-				Vector3r air_speed_tmp = getEnvironment().getState().air_wind.getValue() + getKinematics().twist.linear;
+				Vector3r wind_tmp = getEnvironment().getState().air_wind;
+				Vector3r velocity_tmp = getKinematics().twist.linear;
+				Vector3r air_speed_tmp = wind_tmp + velocity_tmp;
 				air_speed_ = VectorMath::transformToBodyFrame(air_speed_tmp, orientation_);
+				
 
 				if (isFullLogging_) {
-					Logger_.write("air speed");
+					Logger_.write("wind");
+					Logger_.write(wind_tmp);
+					Logger_.write("air speed world");
+					Logger_.write(air_speed_tmp);
+					Logger_.write("body");
 					Logger_.write(air_speed_);
-					Logger_.write("orientation");
+					Logger_.write("body orientation");
 					Logger_.write(orientation_);
 					Logger_.endl();
 				}
@@ -145,12 +151,18 @@ namespace msr {
 						const auto force_info = uniforces_.at(rotor_index)->getObjType();
 						writeType2logger(force_info);
 						auto val1 = uniforces_.at(rotor_index)->getOutput().control_signal_filtered;
+						Logger_.write("ctrl sig filt");
 						Logger_.write(val1);
 						auto val2 = uniforces_.at(rotor_index)->getOutput().thrust;
+						Logger_.write("thrust");
 						Logger_.write(val2);
 						auto val3 = uniforces_.at(rotor_index)->getOutput().torque_scaler;
+						Logger_.write("torq scl");
 						Logger_.write(val3);
 						auto val4 = uniforces_.at(rotor_index)->getOutput().resistance;
+						Logger_.write("resistance");
+						Logger_.write(val4);
+	
 					}
 					Logger_.endl();
 					Logger_.write("___________________________");
@@ -371,7 +383,13 @@ namespace msr {
 				}
 				return result;
 			}
-
+			bool vectorLessValue(Vector3r trg, const float value)
+			{
+				bool res = ((std::abs(trg.x()) < std::abs(value))
+						&&  (std::abs(trg.y()) < std::abs(value))
+						&&  (std::abs(trg.z()) < std::abs(value))) ? true : false;
+				return res;
+			}	
 		private: //fields
 			PlaneParams* params_;
 			uint _rotors_count;

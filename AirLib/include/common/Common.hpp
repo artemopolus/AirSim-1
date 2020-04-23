@@ -71,5 +71,7 @@ inline std::ostream& operator<<(std::ostream &os, Vector3r const &vec) {
     return os << vec.x() << "\t" << vec.y() << "\t" << vec.z() << "\t";
 }
 
+
+
 }} //namespace
 #endif
