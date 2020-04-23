@@ -15,6 +15,7 @@ namespace msr {
 			{
 				initialize(position, normal, turning_direction, environment, id);
 				setType(UniForceType::Rudder);
+				setWrench2Zero();
 				setObjType(UpdatableObject::typeUpdObj::rudder);
 			}
 			void reportState(StateReporter& reporter) override
@@ -47,7 +48,7 @@ namespace msr {
 				output.control_signal_filtered = control_signal_filter.getOutput();
 				output.angle = output.control_signal_filtered * params_->getMaxAngle();
 				//output.speed = sqrt(output.control_signal_filtered * params_->max_speed_square);
-				output.thrust = output.control_signal_filtered * params_->getMaxThrust() * static_cast<int>(getTurningDirection());
+				output.thrust = output.control_signal_filtered * params_->getMaxThrust() * static_cast<int>(getTurningDirection())*0.0f;
 				output.torque_scaler = 0;
 				output.turning_direction = getTurningDirection();
 			}

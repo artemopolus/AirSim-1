@@ -47,8 +47,8 @@ namespace msr {
 			*/
 				wing_length = 1.0f; // rad
 				wing_width = 1.0f; // rad
-				C_lift = 0.25f; // Newton per meter
-				C_resi = 9.0f / 400.0f;
+				C_lift = 0.01f; // Newton per meter
+				C_resi = 0.00005f;
 				S = wing_length * wing_width;
 
 				max_torque = 0.000005f; //есть ли какое-то влияние вращения от руля???? или проще просто ноль ввести

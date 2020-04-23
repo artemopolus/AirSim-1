@@ -146,7 +146,7 @@ namespace msr {
 					Quaternionr no_rot(AngleAxisr(0, unit_z));
 					Vector3r forward(1, 0, 0);
 					// vectors below are rotated according to NED left hand rule (so the vectors are rotated counter clockwise).
-					rotor_poses.emplace_back(VectorMath::rotateVector(Vector3r( -arm_lengths[0], 0, rotor_z), no_rot, true),
+					rotor_poses.emplace_back(VectorMath::rotateVector(Vector3r( -arm_lengths[0], 0, 0), no_rot, true),
 						forward, RotorTurningDirection::RotorTurningDirectionCW);
 					rotor_poses.emplace_back(VectorMath::rotateVector(Vector3r(0, -arm_lengths[1], rotor_z), hexa_rot30, true),
 						unit_z, RotorTurningDirection::RotorTurningDirectionCW);

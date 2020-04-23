@@ -97,13 +97,13 @@ namespace msr {
 				
 
 				if (isFullLogging_) {
-					Logger_.write("wind");
+					Logger_.write("[air_speed]\tw");
 					Logger_.write(wind_tmp);
-					Logger_.write("air speed world");
+					Logger_.write("air_w");
 					Logger_.write(air_speed_tmp);
-					Logger_.write("body");
+					Logger_.write("air_b");
 					Logger_.write(air_speed_);
-					Logger_.write("body orientation");
+					Logger_.write("q_b");
 					Logger_.write(orientation_);
 					Logger_.endl();
 				}
@@ -111,7 +111,7 @@ namespace msr {
 				//transfer new input values from controller to rotors
 				if (isFullLogging_)
 				{
-					Logger_.write("all");
+					Logger_.write("[INPUT_SIG]");
 					for (uint rotor_index = 0; rotor_index < 8; ++rotor_index) {
 						auto val = vehicle_api_->getActuation(rotor_index);
 						Logger_.write(val);
@@ -140,24 +140,24 @@ namespace msr {
 				//Logger_.endl();
 				if (isFullLogging_)
 				{
-					Logger_.write("sig input:");
+					Logger_.write("[CTRL_SIG_INP]");
 					for (uint rotor_index = 0; rotor_index < uniforces_.size(); ++rotor_index) {
 						auto val = uniforces_.at(rotor_index)->getOutput().control_signal_input;
 						Logger_.write(val);
 					}
 					Logger_.endl();
-					Logger_.write("filtered:");
+					Logger_.write("[FRC_OUTPUT]");
 					for (uint rotor_index = 0; rotor_index < uniforces_.size(); ++rotor_index) {
 						const auto force_info = uniforces_.at(rotor_index)->getObjType();
 						writeType2logger(force_info);
 						auto val1 = uniforces_.at(rotor_index)->getOutput().control_signal_filtered;
-						Logger_.write("ctrl sig filt");
+						Logger_.write("ctrl");
 						Logger_.write(val1);
 						auto val2 = uniforces_.at(rotor_index)->getOutput().thrust;
 						Logger_.write("thrust");
 						Logger_.write(val2);
 						auto val3 = uniforces_.at(rotor_index)->getOutput().torque_scaler;
-						Logger_.write("torq scl");
+						Logger_.write("torq_scl");
 						Logger_.write(val3);
 						auto val4 = uniforces_.at(rotor_index)->getOutput().resistance;
 						Logger_.write("resistance");
@@ -189,6 +189,13 @@ namespace msr {
 				//return rotors_.at(index);
 				/*PhysicsBodyVertex & ret = *uniforces_.at(index);
 				return ret;*/
+				Logger_.write("[OUT_WRENCH]");
+				writeType2logger(uniforces_.at(index)->getObjType());
+				Logger_.write("F");
+				Logger_.write(uniforces_.at(index)->getWrench().force);
+				Logger_.write("M");
+				Logger_.write(uniforces_.at(index)->getWrench().torque);
+				Logger_.endl();
 				return *uniforces_.at(index);
 			}
 			virtual const PhysicsBodyVertex& getWrenchVertex(uint index) const override

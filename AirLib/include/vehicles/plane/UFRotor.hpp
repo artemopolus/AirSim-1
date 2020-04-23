@@ -15,6 +15,7 @@ namespace msr { namespace airlib {
 				initialize(position, normal, turning_direction, environment, id);
 				setType(UniForceType::Rotor);
 				setObjType(UpdatableObject::typeUpdObj::rotor);
+				setWrench2Zero();
 			}
 			void reportState(StateReporter& reporter) override
 			{
@@ -47,8 +48,8 @@ namespace msr { namespace airlib {
 				output.control_signal_filtered = control_signal_filter.getOutput();
 				//see relationship of rotation speed with thrust: http://physics.stackexchange.com/a/32013/14061
 				output.speed = sqrt(output.control_signal_filtered * params_->max_speed_square);
-				output.thrust = output.control_signal_filtered * params_->max_thrust;
-				output.torque_scaler = output.control_signal_input * params_->max_torque * static_cast<int>(getTurningDirection());
+				output.thrust = output.control_signal_filtered * params_->max_thrust* static_cast<int>(getTurningDirection());
+				output.torque_scaler = output.control_signal_input * params_->max_torque * static_cast<int>(getTurningDirection())*0.0f;
 				output.turning_direction = getTurningDirection();
 				output.resistance = -std::abs(getAirSpeed().x()) * getAirSpeed().x() * params_->getMultiResistance();
 			}

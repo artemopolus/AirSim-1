@@ -19,6 +19,11 @@ protected:
         //generating vertex
     }
 public:
+	void setWrench2Zero()
+	{
+		current_wrench_.force = Vector3r::Zero();
+		current_wrench_.torque = Vector3r::Zero();
+	}
     real_T getDragFactor() const
     {
         return drag_factor_;
