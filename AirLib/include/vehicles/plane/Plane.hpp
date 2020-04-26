@@ -20,7 +20,8 @@
 #include "UFRotor.hpp"
 #include "UFRudder.hpp"
 #include "UFWing.hpp"
-
+#include "common/Settings.hpp"
+#include "common/AirSimSettings.hpp"
 
 namespace msr {
 	namespace airlib {
@@ -34,7 +35,7 @@ namespace msr {
 				: params_(params), vehicle_api_(vehicle_api), plane_name_(name)
 			{
 				initialize(kinematics, environment);
-				std::string filename = std::string("J:/Unreal/LogAirSim/") + plane_name_ + std::string("_PlaneData.txt");
+				std::string filename = Settings::getUserDirectoryFullPath(plane_name_ + std::string("_PlaneData.txt"));
 				this->Logger_.open(filename, true);
 				setObjType(UpdatableObject::typeUpdObj::plane);
 				setObjName(plane_name_);
@@ -162,6 +163,8 @@ namespace msr {
 						auto val4 = uniforces_.at(rotor_index)->getOutput().resistance;
 						Logger_.write("resistance");
 						Logger_.write(val4);
+						Logger_.write("angle");
+						Logger_.write(uniforces_.at(rotor_index)->getOutput().angle);
 	
 					}
 					Logger_.endl();
@@ -280,7 +283,6 @@ namespace msr {
 				uint force_count = params.getParams().rotor_count + 
 									params.getParams().rudder_count + 
 									params.getParams().wing_count;
-				
 				
 				for (uint i = 0; i < force_count; ++i)
 				{

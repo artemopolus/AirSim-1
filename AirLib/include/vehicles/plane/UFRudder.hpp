@@ -17,6 +17,7 @@ namespace msr {
 				setType(UniForceType::Rudder);
 				setWrench2Zero();
 				setObjType(UpdatableObject::typeUpdObj::rudder);
+				//params_->calculateMaxThrust();
 			}
 			void reportState(StateReporter& reporter) override
 			{
@@ -30,7 +31,7 @@ namespace msr {
 			
 			void setControlSignal(real_T control_signal) override
 			{
-				real_T ctrl = Utils::clip(control_signal, -1.0f, 1.0f);
+				real_T ctrl = Utils::clip(control_signal, 0.0f, 1.0f);
 				UniForce::setControlSignal(ctrl);
 			}
 		
@@ -38,7 +39,8 @@ namespace msr {
 			void setWrench(Wrench& wrench) override
 			{
 				Vector3r normal = getNormal();
-				wrench.force = normal * getOutput().thrust * getAirDensityRatio();
+				Vector3r forward = Vector3r(1, 0, 0);
+				wrench.force = (normal * getOutput().thrust - forward*getOutput().resistance )* getAirDensityRatio();
 				wrench.torque = Vector3r(0,0,0);
 			}
 		private:
@@ -46,10 +48,12 @@ namespace msr {
 			{
 				output.control_signal_input = control_signal_filter.getInput();
 				output.control_signal_filtered = control_signal_filter.getOutput();
-				output.angle = output.control_signal_filtered * params_->getMaxAngle();
-				//output.speed = sqrt(output.control_signal_filtered * params_->max_speed_square);
-				output.thrust = output.control_signal_filtered * params_->getMaxThrust() * static_cast<int>(getTurningDirection())*0.0f;
-				output.torque_scaler = 0;
+				output.angle =  (output.control_signal_filtered - 0.5f) * params_->getMaxAngle() * static_cast<int>(getTurningDirection());
+				float x = getAirSpeed().x();
+				x *= x;
+				output.thrust =  x * (output.control_signal_filtered - 0.5f) * params_->getMaxThrust() * static_cast<int>(getTurningDirection());
+				output.resistance =  x * params_->getResistance();
+				output.torque_scaler = 0.0f;
 				output.turning_direction = getTurningDirection();
 			}
 			UniForceParams& getParams() const override

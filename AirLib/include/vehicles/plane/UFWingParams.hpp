@@ -26,6 +26,17 @@ namespace msr {
 				C_resi = rudder_lengths[2];
 				calculateMaxThrust();
 			}
+			virtual void calculateMaxThrust( std::vector<float>( datamass) )
+			{
+				if (datamass.size() != 4)
+					return;
+				wing_length = datamass[0];
+				wing_width = datamass[1];
+				S = wing_length * wing_width;
+				C_lift = datamass[2];
+				C_resi = datamass[3];
+				calculateMaxThrust();
+			}
 			real_T getMlift() const
 			{
 				return multLift;

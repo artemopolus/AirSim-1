@@ -18,7 +18,7 @@ namespace msr {
 				setType(UniForceType::Wing);
 				setObjType(UpdatableObject::typeUpdObj::wing);
 				setWrench2Zero();
-				params_->calculateMaxThrust();
+				//params_->calculateMaxThrust();
 			}
 			void reportState(StateReporter& reporter) override
 			{

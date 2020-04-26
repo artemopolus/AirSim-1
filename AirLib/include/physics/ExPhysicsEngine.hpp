@@ -14,7 +14,7 @@
 #include "common/CommonStructs.hpp"
 #include "common/SteppableClock.hpp"
 #include <cinttypes>
-
+#include "common/Settings.hpp" 
 /* добавляем логирование*/
 #include "common/LogFileWriter.hpp"
 #include "vehicles/plane/Plane.hpp"
@@ -27,7 +27,8 @@ namespace msr {
 			ExPhysicsEngine(bool enable_ground_lock = true)
 				: enable_ground_lock_(enable_ground_lock)
 			{
-				std::string filename = std::string("J:/Unreal/LogAirSim/") + plane_logger_name_ + std::string("_PhysicsEngine.txt");
+				//std::string filename = std::string("J:/Unreal/LogAirSim/") + plane_logger_name_ + std::string("_PhysicsEngine.txt");
+				std::string filename = Settings::getUserDirectoryFullPath(plane_logger_name_ + std::string("_PhysicsEngine.txt"));
 				this->plane_logger_.open(filename, true);
 				//enable_ground_lock_ = false;
 			}

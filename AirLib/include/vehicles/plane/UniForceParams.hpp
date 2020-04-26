@@ -46,7 +46,11 @@ namespace msr {
 				unused(datamass);
 				 throw std::out_of_range("no max thrust are available");
 			}
-		private:
+			virtual void calculateMaxThrust( std::vector<float>( datamass) ) {
+				unused(datamass);
+				 throw std::out_of_range("no max thrust are available");
+			}
+			private:
 			virtual void initialize()
 			{
 

@@ -36,7 +36,7 @@
 #include "sensors/gps/GpsBase.hpp"
 #include "sensors/magnetometer/MagnetometerBase.hpp"
 #include "sensors/distance/DistanceBase.hpp"
-
+#include "common/Settings.hpp"
 //logger
 #include "common/LogFileWriter.hpp"
 
@@ -59,13 +59,13 @@ namespace msr {
 			{
 				if (!this->Logger_HilCtrlMsg_.isOpen())
 				{
-					std::string filename = std::string("J:/Unreal/LogAirSim/") + vehicle_name + std::string("_log_HilCtrlMsg.txt");
+					std::string filename = Settings::getUserDirectoryFullPath( vehicle_name + std::string("_log_HilCtrlMsg.txt"));
 					this->Logger_HilCtrlMsg_.open(filename, true);
 				}
 				//TODO: убрать перезаписывание лога
 				if (!this->Logger_HilActCtrlMsg_.isOpen())
 				{
-					std::string filename = std::string("J:/Unreal/LogAirSim/") + vehicle_name + std::string("_log_HilActCtrlMsg.txt");
+					std::string filename = Settings::getUserDirectoryFullPath( vehicle_name + std::string("_log_HilActCtrlMsg.txt"));
 					this->Logger_HilActCtrlMsg_.open(filename, true);
 				}
 			}

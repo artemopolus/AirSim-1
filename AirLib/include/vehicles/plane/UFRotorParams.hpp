@@ -29,6 +29,17 @@ namespace msr {
 				air_density = datamass[2];
 				calculateMaxThrust();
 			}
+			virtual void calculateMaxThrust( std::vector<float>( datamass) )
+			{
+				if (datamass.size() != 5)
+					return;
+				max_rpm = datamass[0];
+				propeller_diameter = datamass[1];
+				air_density = datamass[2];
+				C_T = datamass[3];
+				C_P = datamass[4];
+				calculateMaxThrust();
+			}
 			real_T getMultiResistance() const
 			{
 				return multiR;

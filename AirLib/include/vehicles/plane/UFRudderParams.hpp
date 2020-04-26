@@ -15,6 +15,9 @@ namespace msr {
 				real_T value = 1.0f;
 				rudder_length_1 = value;
 				rudder_length_2 = value;
+				max_angle_1 = 1.05f;
+				max_thrust_angle_1 = 0.1f;
+				C_res = 0.5;
 			}
 			virtual void calculateMaxThrust(real_T value) {
 				rudder_length_1 = value;
@@ -26,13 +29,26 @@ namespace msr {
 				rudder_length_2 = rudder_lengths[1];
 				calculateMaxThrust();
 			}
+			virtual void calculateMaxThrust( std::vector<float>( datamass) )
+			{
+				if (datamass.size() != 3)
+					return;
+				max_angle_1 = datamass[0];
+				max_thrust_angle_1 = datamass[1];
+				C_res = datamass[2];
+				//calculateMaxThrust();
+			}
 			real_T getMaxAngle() const
 			{
 				return max_angle_1;
 			}
 			real_T getMaxThrust() const
 			{
-				return max_angle_1;
+				return max_thrust_angle_1;
+			}
+			real_T getResistance() const
+			{
+				return C_res;
 			}
 		private:
 			void initialize() override
@@ -62,6 +78,7 @@ namespace msr {
 			real_T max_thrust_angle_2;
 			real_T rudder_length_1;
 			real_T rudder_length_2;
+			real_T C_res;
 		};
 	}
 }

@@ -219,6 +219,27 @@ public: //types
         std::string data_frame = AirSimSettings::kVehicleInertialFrame;
     };
 
+	struct RotorSetting {
+		uint id;
+		float max_rpm;
+		float propeller_diameter;
+		float air_density;
+		float C_T;
+		float C_P;
+	};
+	struct RudderSettings {
+		uint id;
+		float max_angle_1;
+		float max_thrust_angle_1;
+		float C_res;
+	};
+	struct WingSettings {
+		uint id;
+		float wing_length;
+		float wing_width;
+		float C_lift;
+		float C_resi;
+	};
     struct VehicleSetting {
         //required
         std::string vehicle_name;
@@ -240,6 +261,9 @@ public: //types
 
         std::map<std::string, CameraSetting> cameras;
         std::map<std::string, std::unique_ptr<SensorSetting>> sensors;
+		std::map<std::string, std::unique_ptr<RotorSetting>> rotors;
+		std::map<std::string, std::unique_ptr<RudderSettings>> rudders;
+		std::map<std::string, std::unique_ptr<WingSettings>> wings;
 
         RCSettings rc;
     };
@@ -691,7 +715,9 @@ private:
                 connection_info.params[key] = params.getFloat(key, 0);
             }
         }
+		
 
+		
         return vehicle_setting_p;
     }
 
@@ -714,11 +740,80 @@ private:
         auto vehicle_type = Utils::toLower(settings_json.getString("VehicleType", ""));
 
         std::unique_ptr<VehicleSetting> vehicle_setting;
-        if (vehicle_type == kVehicleTypePX4 || vehicle_type == kVehicleTypeArduCopterSolo || vehicle_type == kVehicleTypeArduCopter
+		if (vehicle_type == kVehicleTypePX4 || vehicle_type == kVehicleTypeArduCopterSolo || vehicle_type == kVehicleTypeArduCopter
 			|| vehicle_type == kVehicleTypePlane /* наш вариант */
-				)
-            vehicle_setting = createMavLinkVehicleSetting(settings_json);
-        //for everything else we don't need derived class yet
+			) {
+			vehicle_setting = createMavLinkVehicleSetting(settings_json);
+			//for everything else we don't need derived class yet
+			msr::airlib::Settings rotors_child;
+			if (settings_json.getChild("Rotors", rotors_child))
+			{
+				std::vector<std::string> keys;
+				rotors_child.getChildNames(keys);
+				if (keys.size())
+					vehicle_setting->rotors.clear();
+				for (const auto & key : keys)
+				{
+					msr::airlib::Settings set;
+					rotors_child.getChild(key, set);
+					vehicle_setting->rotors[key] = std::unique_ptr<RotorSetting> (new RotorSetting());
+					vehicle_setting->rotors[key]->max_rpm = set.getFloat("max_rpm", 6396.667f);
+					vehicle_setting->rotors[key]->air_density = set.getFloat("air_density", 1.225f);
+					vehicle_setting->rotors[key]->C_T = set.getFloat("C_T", 0.109919f);
+					vehicle_setting->rotors[key]->C_P = set.getFloat("C_P", 0.040164f);
+					vehicle_setting->rotors[key]->propeller_diameter = set.getFloat("propeller_diameter", 0.2286f);
+				}
+			}
+			Settings rudder_child;
+			if (settings_json.getChild("Rudders", rudder_child)){
+				std::vector<std::string> keys;
+				rudder_child.getChildNames(keys);
+				if (keys.size())
+					vehicle_setting->rudders.clear();
+				for (const auto & key : keys)
+				{
+					msr::airlib::Settings set;
+					rudder_child.getChild(key, set);
+					vehicle_setting->rudders[key] = std::unique_ptr<RudderSettings>(new RudderSettings());
+					auto & one_rudder = vehicle_setting->rudders[key];
+					one_rudder->max_angle_1 = set.getFloat("max_angle_1", 1.05f);
+					one_rudder->max_thrust_angle_1 = set.getFloat("max_thrust_angle_1", 0.1f);
+					one_rudder->C_res = set.getFloat("C_res", 0.5f);
+				}
+			}
+			Settings wing_child;
+			if (settings_json.getChild("Wings", wing_child)){
+				std::vector<std::string> keys;
+				wing_child.getChildNames(keys);
+				if (keys.size())
+					vehicle_setting->wings.clear();
+				for (const auto & key : keys)
+				{
+					msr::airlib::Settings set;
+					wing_child.getChild(key, set);
+					vehicle_setting->wings[key] = std::unique_ptr<WingSettings>(new WingSettings());
+					auto & one_wing = vehicle_setting->wings[key];
+					one_wing->wing_length = set.getFloat("wing_length", 1.0f);
+					one_wing->wing_width = set.getFloat("wing_width", 1.0f);
+					one_wing->C_lift = set.getFloat("C_lift", 1.0f);
+					one_wing->C_resi = set.getFloat("C_resi", 1.0f);
+				}
+			}
+
+        //if (settings_json.getChild("Vehicles", vehicles_child)) {
+        //    std::vector<std::string> keys;
+        //    vehicles_child.getChildNames(keys);
+
+        //    //remove default vehicles, if values are specified in settings
+        //    if (keys.size())
+        //        vehicles.clear();
+
+        //    for (const auto& key : keys) {
+        //        msr::airlib::Settings child;
+        //        vehicles_child.getChild(key, child);
+        //        vehicles[key] = createVehicleSetting(simmode_name, child, key);
+        //    }
+		}
         else {
             vehicle_setting = std::unique_ptr<VehicleSetting>(new VehicleSetting());
             if (vehicle_type == kVehicleTypeSimpleFlight) {

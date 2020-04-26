@@ -77,6 +77,39 @@ namespace msr {
 			{
 				sensor_storage_.clear();
 				sensors_.clear();
+				float max_rpm = 0.0f, a_d = 0.0f, p_d = 0.0f, ct = 0.0f, cp = 0.0f;
+				for (const auto& rotor : vehicle_setting->rotors) {
+					const AirSimSettings::RotorSetting * set = rotor.second.get();
+					max_rpm = set->max_rpm;
+					a_d = set->air_density;
+					p_d = set->propeller_diameter;
+					ct = set->C_T;
+					cp = set->C_P;
+				}
+				params_.ufrotor_params->max_rpm = max_rpm;
+				params_.ufrotor_params->air_density = a_d;
+				params_.ufrotor_params->propeller_diameter = p_d;
+				params_.ufrotor_params->C_T = ct;
+				params_.ufrotor_params->C_P = cp;
+				params_.ufrotor_params->calculateMaxThrust();
+				uint rudder_cnt = 0;
+				for (const auto & rudder : vehicle_setting->rudders) {
+					const AirSimSettings::RudderSettings * set = rudder.second.get();
+					if (rudder_cnt == 0) {
+						rudder_cnt = 1;
+						std::vector<float> values = { set->max_angle_1, set->max_thrust_angle_1, set->C_res };
+						params_.ufrudder_params->calculateMaxThrust(values);
+					}
+				}
+				uint wing_cnt = 0;
+				for (const auto & wing : vehicle_setting->wings) {
+					const AirSimSettings::WingSettings * set = wing.second.get();
+					if (wing_cnt == 0) {
+						wing_cnt = 1;
+						std::vector<float> values = { set->wing_length, set->wing_width, set->C_lift, set->C_resi };
+						params_.ufwing_params->calculateMaxThrust(values);
+					}
+				}
 
 				setupParams();
 

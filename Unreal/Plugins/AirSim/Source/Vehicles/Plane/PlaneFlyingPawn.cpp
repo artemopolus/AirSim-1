@@ -3,11 +3,14 @@
 #include "AirBlueprintLib.h"
 #include "common/CommonStructs.hpp"
 #include "common/Common.hpp"
-
+#include "common/Settings.hpp"
 APlaneFlyingPawn::APlaneFlyingPawn()
 {
     pawn_events_.getActuatorSignal().connect_member(this, &APlaneFlyingPawn::setRotorSpeed);
-    logfilename_ = std::string("J:/Unreal/LogAirSim/") + std::string(TCHAR_TO_UTF8(*GetName())) + std::string("_PawnAct.txt");;
+    //logfilename_ = std::string("J:/Unreal/LogAirSim/") + std::string(TCHAR_TO_UTF8(*GetName())) + std::string("_PawnAct.txt");;
+    std::string name = std::string(TCHAR_TO_UTF8(*GetName())) + std::string("_PawnAct.txt");
+    logfilename_ = Settings::getUserDirectoryFullPath(name);
+
     Logger_.open(logfilename_, true);
 }
 
