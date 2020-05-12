@@ -36,7 +36,7 @@ namespace msr {
 			
 			void setControlSignal(real_T control_signal) override
 			{
-
+				unused(control_signal);
 			}
 		protected:
 			void setWrench(Wrench& wrench) override
@@ -49,6 +49,7 @@ namespace msr {
 		private:
 			void setOutput(Output& output, const FirstOrderFilter<real_T>& control_signal_filter) override
 			{
+				unused(control_signal_filter);
 				output.control_signal_input = 0.0f;
 				output.control_signal_filtered = 0.0f;
 				//see relationship of rotation speed with thrust: http://physics.stackexchange.com/a/32013/14061
