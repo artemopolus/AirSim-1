@@ -38,6 +38,9 @@ namespace msr {
 				/*********** required parameters ***********/
 				
 				vector<RotorPose> rotor_poses;
+				vector<UFRotorParams> rotor_list;
+				vector<UFRudderParams> rudder_list;
+				vector<UFWingParams> wing_list;
 				/* Рули */
 				uint rotor_count = 0;
 				uint rudder_count = 0;
@@ -85,6 +88,18 @@ namespace msr {
 					p_d = set->propeller_diameter;
 					ct = set->C_T;
 					cp = set->C_P;
+					params_.rotor_poses.emplace_back(set->pos, set->norm, RotorTurningDirection::RotorTurningDirectionCW);
+					UFRotorParams one_rotor;
+					one_rotor.max_rpm = set->max_rpm;
+					one_rotor.air_density = set->air_density;
+					one_rotor.propeller_diameter = set->propeller_diameter;
+					one_rotor.C_T = set->C_T;
+					one_rotor.C_P = set->C_P;
+					one_rotor.setNormal(set->norm);
+					one_rotor.setPosition(set->pos);
+					one_rotor.setActID(set->act_id);
+					params_.rotor_list.emplace_back(one_rotor);
+
 				}
 				params_.ufrotor_params->max_rpm = max_rpm;
 				params_.ufrotor_params->air_density = a_d;
@@ -100,6 +115,14 @@ namespace msr {
 						std::vector<float> values = { set->max_angle_1, set->max_thrust_angle_1, set->C_res };
 						params_.ufrudder_params->calculateMaxThrust(values);
 					}
+					UFRudderParams one_rudder;
+					std::vector<float> values = { set->max_angle_1, set->max_thrust_angle_1, set->C_res };
+					one_rudder.calculateMaxThrust(values);
+					one_rudder.setNormal(set->norm);
+					one_rudder.setPosition(set->pos);
+					one_rudder.setActID(set->act_id);
+					params_.rudder_list.emplace_back(one_rudder);
+
 				}
 				uint wing_cnt = 0;
 				for (const auto & wing : vehicle_setting->wings) {
@@ -109,6 +132,12 @@ namespace msr {
 						std::vector<float> values = { set->wing_length, set->wing_width, set->C_lift, set->C_resi };
 						params_.ufwing_params->calculateMaxThrust(values);
 					}
+					UFWingParams one_wing;
+					std::vector<float> values = { set->wing_length, set->wing_width, set->C_lift, set->C_resi };
+					one_wing.calculateMaxThrust(values);
+					one_wing.setNormal(set->norm);
+					one_wing.setPosition(set->pos);
+					params_.wing_list.emplace_back(one_wing);
 				}
 
 				setupParams();

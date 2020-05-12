@@ -31,6 +31,30 @@ namespace msr {
 			{
 				initialize();
 			}
+			void setNormal(Vector3r norm)
+			{
+				normal_ = norm;
+			}
+			Vector3r getNormal() const
+			{
+				return normal_;
+			}
+			void setPosition(Vector3r pos)
+			{
+				position_ = pos;
+			}
+			Vector3r getPosition() const
+			{
+				return position_;
+			}
+			void setActID(uint id)
+			{
+				act_id_ = id;
+			}
+			uint getActID() const
+			{
+				return act_id_;
+			}
 			virtual ~UniForceParams()
 			{
 
@@ -50,11 +74,15 @@ namespace msr {
 				unused(datamass);
 				 throw std::out_of_range("no max thrust are available");
 			}
-			private:
+		private:
 			virtual void initialize()
 			{
 
 			}
+		private:
+			Vector3r normal_;
+			Vector3r position_;
+			uint act_id_;
 		};
 
 	}

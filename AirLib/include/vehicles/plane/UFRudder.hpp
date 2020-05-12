@@ -19,6 +19,10 @@ namespace msr {
 				setObjType(UpdatableObject::typeUpdObj::rudder);
 				//params_->calculateMaxThrust();
 			}
+			UFRudderParams * getCurrentParams() const
+			{
+				return params_;
+			}
 			void reportState(StateReporter& reporter) override
 			{
 				reporter.writeValue("Dir", static_cast<int>(getTurningDirection()));

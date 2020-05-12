@@ -53,6 +53,10 @@ namespace msr {
 
 				PhysicsBodyVertex::initialize(position, normal);   //call base initializer
 			}
+			uint getActID() const
+			{
+				return getParams().getActID();
+			}
 			void setType(UniForceType type)
 			{
 				output_.type = type;

@@ -220,26 +220,31 @@ public: //types
     };
 
 	struct RotorSetting {
-		uint id;
+		uint act_id;
 		float max_rpm;
 		float propeller_diameter;
 		float air_density;
 		float C_T;
 		float C_P;
+		Vector3r pos;
+		Vector3r norm;
 	};
 	struct RudderSettings {
-		uint id;
+		uint act_id;
 		float max_angle_1;
 		float max_thrust_angle_1;
 		float C_res;
-	};
+		Vector3r pos;
+		Vector3r norm;
+		};
 	struct WingSettings {
-		uint id;
 		float wing_length;
 		float wing_width;
 		float C_lift;
 		float C_resi;
-	};
+		Vector3r pos;
+		Vector3r norm;
+		};
     struct VehicleSetting {
         //required
         std::string vehicle_name;
@@ -762,6 +767,16 @@ private:
 					vehicle_setting->rotors[key]->C_T = set.getFloat("C_T", 0.109919f);
 					vehicle_setting->rotors[key]->C_P = set.getFloat("C_P", 0.040164f);
 					vehicle_setting->rotors[key]->propeller_diameter = set.getFloat("propeller_diameter", 0.2286f);
+					vehicle_setting->rotors[key]->act_id = set.getInt("act_id", 3);
+					float x = 0, y = 0, z = 0;
+					x = set.getFloat("pos_x", 0);
+					y = set.getFloat("pos_y", 0);
+					z = set.getFloat("pos_z", 0);
+					vehicle_setting->rotors[key]->pos = Vector3r(x, y, z);
+					x = set.getFloat("norm_x", 0);
+					y = set.getFloat("norm_y", 0);
+					z = set.getFloat("norm_z", 1);
+					vehicle_setting->rotors[key]->norm = Vector3r(x, y, z);
 				}
 			}
 			Settings rudder_child;
@@ -779,6 +794,16 @@ private:
 					one_rudder->max_angle_1 = set.getFloat("max_angle_1", 1.05f);
 					one_rudder->max_thrust_angle_1 = set.getFloat("max_thrust_angle_1", 0.1f);
 					one_rudder->C_res = set.getFloat("C_res", 0.5f);
+					one_rudder->act_id = set.getInt("act_id", 0);
+					float x = 0, y = 0, z = 0;
+					x = set.getFloat("pos_x", 0);
+					y = set.getFloat("pos_y", 0);
+					z = set.getFloat("pos_z", 0);
+					one_rudder->pos = Vector3r(x, y, z);
+					x = set.getFloat("norm_x", 0);
+					y = set.getFloat("norm_y", 0);
+					z = set.getFloat("norm_z", 1);
+					one_rudder->norm = Vector3r(x, y, z);
 				}
 			}
 			Settings wing_child;
@@ -797,6 +822,15 @@ private:
 					one_wing->wing_width = set.getFloat("wing_width", 1.0f);
 					one_wing->C_lift = set.getFloat("C_lift", 1.0f);
 					one_wing->C_resi = set.getFloat("C_resi", 1.0f);
+					float x = 0, y = 0, z = 0;
+					x = set.getFloat("pos_x", 0);
+					y = set.getFloat("pos_y", 0);
+					z = set.getFloat("pos_z", 0);
+					one_wing->pos = Vector3r(x, y, z);
+					x = set.getFloat("norm_x", 0);
+					y = set.getFloat("norm_y", 0);
+					z = set.getFloat("norm_z", 1);
+					one_wing->norm = Vector3r(x, y, z);
 				}
 			}
 

@@ -34,9 +34,9 @@ namespace msr {
 				Kinematics* kinematics, Environment* environment, std::string name)
 				: params_(params), vehicle_api_(vehicle_api), plane_name_(name)
 			{
-				initialize(kinematics, environment);
 				std::string filename = Settings::getUserDirectoryFullPath(plane_name_ + std::string("_PlaneData.txt"));
 				this->Logger_.open(filename, true);
+				initialize(kinematics, environment);
 				setObjType(UpdatableObject::typeUpdObj::plane);
 				setObjName(plane_name_);
 			}
@@ -122,23 +122,20 @@ namespace msr {
 				//Logger_.write("input");
 				{
 					//map 
-					uniforces_[0]->setControlSignal( vehicle_api_->getActuation(3));
-					uniforces_[1]->setControlSignal(vehicle_api_->getActuation(0));
-					uniforces_[2]->setControlSignal(vehicle_api_->getActuation(1));
+					for (uint i = 0; i < uniforces_.size(); i++)
+					{
+						if (uniforces_[i]->getObjType() != UpdatableObject::typeUpdObj::wing)
+						{
 
-					uniforces_[0]->setAirSpeed(air_speed_);
-					uniforces_[1]->setAirSpeed(air_speed_);
-					uniforces_[2]->setAirSpeed(air_speed_);
-					uniforces_[3]->setAirSpeed(air_speed_);
+
+							uint trg_id = uniforces_[i]->getActID();
+							uniforces_[i]->setControlSignal(vehicle_api_->getActuation(trg_id));
+						}
+						uniforces_[i]->setAirSpeed(air_speed_);
+
+					}
+				
 				}
-				//for (uint rotor_index = 0; rotor_index < uniforces_.size(); ++rotor_index) {
-				//	//rotors_.at(rotor_index).setControlSignal(vehicle_api_->getActuation(rotor_index));
-				//	uniforces_.at(rotor_index)->setAirSpeed(air_speed_);
-				//	auto val = vehicle_api_->getActuation(rotor_index);
-				//	Logger_.write(val);
-				//	uniforces_.at(rotor_index)->setControlSignal(val);
-				//}
-				//Logger_.endl();
 				if (isFullLogging_)
 				{
 					Logger_.write("[CTRL_SIG_INP]");
@@ -246,7 +243,7 @@ namespace msr {
 
 				//createRotors(*params_, rotors_, environment
 				_rotors_count = params_->getParams().rotor_count;
-				createRuRoWs(*params_, uniforces_, environment);
+				createRuRoWs(*params_, uniforces_, environment, Logger_);
 				
 				createDragVertices();
 
@@ -277,44 +274,69 @@ namespace msr {
 			//	}
 			//}
 
-			static void createRuRoWs(const PlaneParams& params, vector<UniForce*>& uniforces, const Environment* environment)
+			static void createRuRoWs(const PlaneParams& params, vector<UniForce*>& uniforces, const Environment* environment, LogFileWriter & logger)
 			{
 				uniforces.clear();
-				uint force_count = params.getParams().rotor_count + 
-									params.getParams().rudder_count + 
-									params.getParams().wing_count;
-				
-				for (uint i = 0; i < force_count; ++i)
+				uint counter = 0;
+				for (const  UFRotorParams & rotor_param : params.getParams().rotor_list)
 				{
-					const PlaneParams::RotorPose& rotor_pose = params.getParams().rotor_poses.at(i);
-					//UniForce force;
-					if (i < params.getParams().rotor_count)
+					UFRotorParams * trg_param = new UFRotorParams(rotor_param);
+					uniforces.emplace_back(new UFRotor(
+						rotor_param.getPosition(), rotor_param.getNormal(),
+						UFRotorParams::UniForceDirection::UniForceDirectionFront,
+						trg_param, environment, counter
+					));
+					counter++;
+				}
+				for (const  UFRudderParams & rudder_param : params.getParams().rudder_list)
+				{
+					UFRudderParams * trg_param = new UFRudderParams(rudder_param);
+					uniforces.emplace_back(new UFRudder(
+						rudder_param.getPosition(), rudder_param.getNormal(),
+						UFRotorParams::UniForceDirection::UniForceDirectionFront,
+						trg_param, environment, counter
+					));
+					counter++;
+				}
+				for (const  UFWingParams & wing_param : params.getParams().wing_list)
+				{
+					UFWingParams * trg_param = new UFWingParams(wing_param);
+					uniforces.emplace_back(new UFWing(
+						wing_param.getPosition(), wing_param.getNormal(),
+						UFRotorParams::UniForceDirection::UniForceDirectionFront,
+						trg_param, environment, counter
+					));
+					counter++;
+				}
+
+				for (auto & one_force : uniforces)
+				{
+					if (one_force->getObjType == UpdatableObject::typeUpdObj::rotor)
 					{
-						/*force = new UFRotor(rotor_pose.position, rotor_pose.normal, rotor_pose.direction, 
-									(UFRotorParams*)params.getParams().force_params, environment, i);*/
-						uniforces.emplace_back(new UFRotor(
-							rotor_pose.position,
-							rotor_pose.normal,
-							(UFRotorParams::UniForceDirection) rotor_pose.direction,
-							params.getParams().ufrotor_params, environment, i));
+						UFRotor * rotor = static_cast<UFRotor*>(one_force);
+						UFRotorParams * params = rotor->getCurrentParams();
+						logger.write("Rotor");
+						logger.write(params->getNormal());
+						logger.write(params->getPosition());
+						logger.endl();
 					}
-					else if (i < (params.getParams().rotor_count + params.getParams().rudder_count)
-									&&(params.getParams().rudder_count))
-					{ 
-					//TODO
-						uniforces.emplace_back(new UFRudder(
-							rotor_pose.position,
-							rotor_pose.normal,
-							(UFRudderParams::UniForceDirection) rotor_pose.direction,
-							params.getParams().ufrudder_params, environment, i));
+					if (one_force->getObjType == UpdatableObject::typeUpdObj::rudder)
+					{
+						UFRudder * base = static_cast<UFRudder*>(one_force);
+						UFRudderParams * params = base->getCurrentParams();
+						logger.write("Rudder");
+						logger.write(params->getNormal());
+						logger.write(params->getPosition());
+						logger.endl();
 					}
-					else if (params.getParams().wing_count){
-						uniforces.emplace_back(new UFWing(
-							rotor_pose.position,
-							rotor_pose.normal,
-							(UFWingParams::UniForceDirection) rotor_pose.direction,
-							params.getParams().ufwing_params, environment, i
-						));
+					if (one_force->getObjType == UpdatableObject::typeUpdObj::wing)
+					{
+						UFWing * base = static_cast<UFWing*>(one_force);
+						UFWingParams * params = base->getCurrentParams();
+						logger.write("Wing");
+						logger.write(params->getNormal());
+						logger.write(params->getPosition());
+						logger.endl();
 					}
 				}
 			}

@@ -17,6 +17,10 @@ namespace msr { namespace airlib {
 				setObjType(UpdatableObject::typeUpdObj::rotor);
 				setWrench2Zero();
 			}
+			UFRotorParams * getCurrentParams() const
+			{
+				return params_;
+			}
 			void reportState(StateReporter& reporter) override
 			{
 				reporter.writeValue("Dir", static_cast<int>(getTurningDirection()));

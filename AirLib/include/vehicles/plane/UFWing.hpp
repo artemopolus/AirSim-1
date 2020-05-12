@@ -20,6 +20,10 @@ namespace msr {
 				setWrench2Zero();
 				//params_->calculateMaxThrust();
 			}
+			UFWingParams * getCurrentParams() const
+			{
+				return params_;
+			}
 			void reportState(StateReporter& reporter) override
 			{
 				reporter.writeValue("Dir", static_cast<int>(getTurningDirection()));
