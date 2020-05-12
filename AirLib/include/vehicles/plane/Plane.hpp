@@ -311,31 +311,31 @@ namespace msr {
 
 				for (auto & one_force : uniforces)
 				{
-					if (one_force->getObjType == UpdatableObject::typeUpdObj::rotor)
+					if (one_force->getObjType() == UpdatableObject::typeUpdObj::rotor)
 					{
-						UFRotor * rotor = static_cast<UFRotor*>(one_force);
-						UFRotorParams * params = rotor->getCurrentParams();
+						UFRotor * base =  (static_cast<UFRotor*>(one_force));
+						UFRotorParams * base_params = base->getCurrentParams();
 						logger.write("Rotor");
-						logger.write(params->getNormal());
-						logger.write(params->getPosition());
+						logger.write(base_params->getNormal());
+						logger.write(base_params->getPosition());
 						logger.endl();
 					}
-					if (one_force->getObjType == UpdatableObject::typeUpdObj::rudder)
+					if (one_force->getObjType() == UpdatableObject::typeUpdObj::rudder)
 					{
 						UFRudder * base = static_cast<UFRudder*>(one_force);
-						UFRudderParams * params = base->getCurrentParams();
+						UFRudderParams * base_params = base->getCurrentParams();
 						logger.write("Rudder");
-						logger.write(params->getNormal());
-						logger.write(params->getPosition());
+						logger.write(base_params->getNormal());
+						logger.write(base_params->getPosition());
 						logger.endl();
 					}
-					if (one_force->getObjType == UpdatableObject::typeUpdObj::wing)
+					if (one_force->getObjType() == UpdatableObject::typeUpdObj::wing)
 					{
 						UFWing * base = static_cast<UFWing*>(one_force);
-						UFWingParams * params = base->getCurrentParams();
+						UFWingParams * base_params = base->getCurrentParams();
 						logger.write("Wing");
-						logger.write(params->getNormal());
-						logger.write(params->getPosition());
+						logger.write(base_params->getNormal());
+						logger.write(base_params->getPosition());
 						logger.endl();
 					}
 				}
