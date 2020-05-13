@@ -10,6 +10,10 @@ namespace msr { namespace airlib {
 class CelestialTest : public TestBase
 {
 public:
+	CelestialTest()
+	{
+		std::cout << "Celestial test"<< std::endl;
+	}
     virtual void run() override
     {
         auto t = static_cast<uint64_t>(Utils::to_time_t("2018-February-22 15:24:00"));

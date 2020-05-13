@@ -14,6 +14,7 @@ public:
         //eulerAngleTest();
         //lookAtTest();
         rotationOrderTest();
+		std::cout << "Quaternion run"<< std::endl;
     }
 
 private:

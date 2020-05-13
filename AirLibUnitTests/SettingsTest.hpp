@@ -8,6 +8,10 @@ namespace msr { namespace airlib {
 
 class SettingsTest : public TestBase {
 public:
+	SettingsTest()
+	{
+		std::cout << "Setting test"<< std::endl;
+	}
     virtual void run() override
     {
         Settings& settings = Settings::loadJSonFile("settings.json");

@@ -9,14 +9,15 @@
 
 int main()
 {
+	std::cout << "Start unit test";
     using namespace msr::airlib;
 
     std::unique_ptr<TestBase> tests[] = {
         std::unique_ptr<TestBase>(new QuaternionTest()),
-        std::unique_ptr<TestBase>(new CelestialTest()),
+       // std::unique_ptr<TestBase>(new CelestialTest()),
         std::unique_ptr<TestBase>(new SettingsTest()),
-        std::unique_ptr<TestBase>(new SimpleFlightTest())
-		,std::unique_ptr<TestBase>(new PlaneTest()) /* тест самолета */
+        //std::unique_ptr<TestBase>(new SimpleFlightTest())
+		std::unique_ptr<TestBase>(new PlaneTest()) /* тест самолета */
         //,
         //std::unique_ptr<TestBase>(new PixhawkTest()),
         //std::unique_ptr<TestBase>(new WorkerThreadTest())
@@ -25,6 +26,7 @@ int main()
     for (auto& test : tests)
         test->run();
 
+	std::cout << "done!"<< std::endl;
     return 0;
 }
 

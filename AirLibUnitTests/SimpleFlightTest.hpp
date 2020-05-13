@@ -16,9 +16,14 @@ namespace msr { namespace airlib {
 class SimpleFlightTest : public TestBase
 {
 public:
+	SimpleFlightTest()
+	{
+		std::cout << "simple flight test"<< std::endl;
+	}
     virtual void run() override
     {
-        auto clock = std::make_shared<SteppableClock>(3E-3f);
+        std::cout << "simple flight run"<< std::endl;
+		auto clock = std::make_shared<SteppableClock>(3E-3f);
         ClockFactory::get(clock);
 
         SensorFactory sensor_factory;
@@ -43,7 +48,8 @@ public:
 
         std::vector<UpdatableObject*> vehicles = { &vehicle };
         std::unique_ptr<PhysicsEngineBase> physics_engine(new FastPhysicsEngine());
-        PhysicsWorld physics_world(std::move(physics_engine), vehicles,
+		
+		PhysicsWorld physics_world(std::move(physics_engine), vehicles,
             static_cast<uint64_t>(clock->getStepSize() * 1E9));
 
         testAssert(api != nullptr, "api was null");
@@ -65,7 +71,7 @@ public:
         api->moveToPosition(-5, -5, -5, 5, 1E3, DrivetrainType::MaxDegreeOfFreedom, YawMode(true, 0), -1, 0);
 
         clock->sleep_for(2.0f);
-
+        std::cout << "start cycle"<< std::endl;
 
         while (true) {
             clock->sleep_for(0.1f);
@@ -75,6 +81,7 @@ public:
             }
             messages_.clear();
         }
+        std::cout << "ended"<< std::endl;
     }
 
 private:

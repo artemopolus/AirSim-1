@@ -6,14 +6,35 @@
 #include "vehicles/plane/PlaneParamsFactory.hpp"
 #include "vehicles/plane/Plane.hpp"
 #include "TestBase.hpp"
+#include "common/AirSimSettings.hpp"
 
 namespace msr {
 	namespace airlib {
 
 		class PlaneTest : public TestBase {
 		public:
+			PlaneTest()
+			{
+				std::cout << "Plane test" << std::endl;
+			}
+			std::string getSimMode() const
+			{
+				return "Plane";
+			}
 			virtual void run() override
 			{
+				std::cout << "Start plane test" << std::endl;
+
+				std::string settingsPath = msr::airlib::Settings::Settings::getUserDirectoryFullPath("settings.json").c_str();
+				
+				std::string settingsText = "", str;
+
+				std::ifstream input(settingsPath);
+				while (getline(input, str))
+					settingsText += str;
+				AirSimSettings::singleton().initializeSettings(settingsText);
+
+
 				std::unique_ptr<msr::airlib::Kinematics> kinematics;
 				std::unique_ptr<msr::airlib::Environment> environment;
 
@@ -26,12 +47,19 @@ namespace msr {
 				std::vector<std::unique_ptr<msr::airlib::Plane>> planes;
 
 				std::vector<std::string> vehicle_names;
+
+				std::map<std::string, std::unique_ptr<msr::airlib::AirSimSettings::VehicleSetting>> vehicles;
+
+				msr::airlib::AirSimSettings::singleton().load(std::bind(&PlaneTest::getSimMode,this));
+
+
 				for (auto const& vehicle_setting_pair : AirSimSettings::singleton().vehicles)
 				{
 					const auto& vehicle_setting = *vehicle_setting_pair.second;
 					// some settings loading
 					std::string name = vehicle_setting.vehicle_name.c_str();
 					vehicle_names.emplace_back(name);
+					std::cout << "name:" << name << std::endl;
 				}
 				//Test PX4 based drones
 				for (auto name : vehicle_names)
