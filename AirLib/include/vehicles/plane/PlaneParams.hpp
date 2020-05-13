@@ -90,11 +90,13 @@ namespace msr {
 					cp = set->C_P;
 					params_.rotor_poses.emplace_back(set->pos, set->norm, RotorTurningDirection::RotorTurningDirectionCW);
 					UFRotorParams one_rotor;
-					one_rotor.max_rpm = set->max_rpm;
+					/*one_rotor.max_rpm = set->max_rpm;
 					one_rotor.air_density = set->air_density;
 					one_rotor.propeller_diameter = set->propeller_diameter;
 					one_rotor.C_T = set->C_T;
-					one_rotor.C_P = set->C_P;
+					one_rotor.C_P = set->C_P;*/
+					std::vector<float> values = {set->max_rpm,set->propeller_diameter,set->air_density, set->C_T, set->C_P, set->multiR};
+					one_rotor.calculateMaxThrust(values);
 					one_rotor.setNormal(set->norm);
 					one_rotor.setPosition(set->pos);
 					one_rotor.setActID(set->act_id);

@@ -38,6 +38,7 @@ namespace msr {
 				air_density = datamass[2];
 				C_T = datamass[3];
 				C_P = datamass[4];
+				multiR = datamass[5];
 				calculateMaxThrust();
 			}
 			real_T getMultiResistance() const
