@@ -769,7 +769,7 @@ private:
 					vehicle_setting->rotors[key]->C_P = set.getFloat("C_P", 0.040164f);
 					vehicle_setting->rotors[key]->propeller_diameter = set.getFloat("propeller_diameter", 0.2286f);
 					vehicle_setting->rotors[key]->act_id = set.getInt("act_id", 3);
-					vehicle_setting->rotors[key]->multiR = set.getFloat("multiR", 0.1);
+					vehicle_setting->rotors[key]->multiR = set.getFloat("multiR", 0.1f);
 					float x = 0, y = 0, z = 0;
 					x = set.getFloat("pos_x", 0);
 					y = set.getFloat("pos_y", 0);
