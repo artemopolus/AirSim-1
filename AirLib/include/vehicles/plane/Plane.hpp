@@ -122,18 +122,21 @@ namespace msr {
 				//Logger_.write("input");
 				{
 					//map 
+					Logger_.write("[MAP]");
 					for (uint i = 0; i < uniforces_.size(); i++)
 					{
-						if (uniforces_[i]->getObjType() != UpdatableObject::typeUpdObj::wing)
+						const auto type = uniforces_[i]->getObjType();
+						writeType2logger(type);
+						if (type != UpdatableObject::typeUpdObj::wing)
 						{
-
-
 							uint trg_id = uniforces_[i]->getActID();
+							Logger_.write(trg_id);
 							uniforces_[i]->setControlSignal(vehicle_api_->getActuation(trg_id));
 						}
 						uniforces_[i]->setAirSpeed(air_speed_);
 
 					}
+					Logger_.endl();
 				
 				}
 				if (isFullLogging_)
@@ -315,9 +318,12 @@ namespace msr {
 					{
 						UFRotor * base =  (static_cast<UFRotor*>(one_force));
 						UFRotorParams * base_params = base->getCurrentParams();
-						logger.write("Rotor");
+						logger.write("Rotor [normal]");
 						logger.write(base_params->getNormal());
+						logger.write("[position]");
 						logger.write(base_params->getPosition());
+						logger.write("[act id]");
+						logger.write(base_params->getActID());
 						logger.endl();
 					}
 					if (one_force->getObjType() == UpdatableObject::typeUpdObj::rudder)
@@ -327,6 +333,8 @@ namespace msr {
 						logger.write("Rudder");
 						logger.write(base_params->getNormal());
 						logger.write(base_params->getPosition());
+						logger.write("[act id]");
+						logger.write(base_params->getActID());
 						logger.endl();
 					}
 					if (one_force->getObjType() == UpdatableObject::typeUpdObj::wing)
@@ -336,6 +344,8 @@ namespace msr {
 						logger.write("Wing");
 						logger.write(base_params->getNormal());
 						logger.write(base_params->getPosition());
+						logger.write("[act id]");
+						logger.write(base_params->getActID());
 						logger.endl();
 					}
 				}

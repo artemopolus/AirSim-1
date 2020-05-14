@@ -30,7 +30,10 @@ namespace msr { namespace airlib {
 				reporter.writeValue("thrust", getOutput().thrust);
 				reporter.writeValue("torque", getOutput().torque_scaler);
 			}
-			
+			uint getActID() const override
+			{
+				return params_->getActID();
+			}
 			void setControlSignal(real_T control_signal) override
 			{
 				//control_signal_filter_.setInput(Utils::clip(control_signal, 0.0f, 1.0f));

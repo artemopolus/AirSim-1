@@ -33,6 +33,10 @@ namespace msr {
 				reporter.writeValue("torque", getOutput().torque_scaler);
 			}
 			
+			uint getActID() const override
+			{
+				return params_->getActID();
+			}
 			void setControlSignal(real_T control_signal) override
 			{
 				real_T ctrl = Utils::clip(control_signal, 0.0f, 1.0f);
