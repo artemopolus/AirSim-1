@@ -68,6 +68,11 @@ namespace msr {
 					std::string filename = Settings::getUserDirectoryFullPath( vehicle_name + std::string("_log_HilActCtrlMsg.txt"));
 					this->Logger_HilActCtrlMsg_.open(filename, true);
 				}
+				if (!Logger_HILSensor_.isOpen())
+				{
+					std::string filename = Settings::getUserDirectoryFullPath( vehicle_name + std::string("_log_HilSensor.txt"));
+					Logger_HILSensor_.open(filename, true);
+				}
 			}
 			void stopLogger()
 			{
@@ -136,7 +141,7 @@ namespace msr {
 					sendHILSensor(imu_output.linear_acceleration,
 						imu_output.angular_velocity,
 						mag_output.magnetic_field_body,
-						baro_output.pressure * 0.01f /*Pa to Millibar */, baro_output.altitude);
+						baro_output.pressure * 0.01f /*Pa to Millibar */, baro_output.altitude, baro_output.diff_pressure);
 
 
 					const auto * distance = getDistance();
@@ -1294,7 +1299,7 @@ namespace msr {
 				//else ignore message
 			}
 
-			void sendHILSensor(const Vector3r& acceleration, const Vector3r& gyro, const Vector3r& mag, float abs_pressure, float pressure_alt)
+			void sendHILSensor(const Vector3r& acceleration, const Vector3r& gyro, const Vector3r& mag, float abs_pressure, float pressure_alt, float diff_pressure)
 			{
 				if (!is_simulation_mode_)
 					throw std::logic_error("Attempt to send simulated sensor messages while not in simulation mode");
@@ -1333,7 +1338,17 @@ namespace msr {
 				hil_sensor.abs_pressure = abs_pressure;
 				hil_sensor.pressure_alt = pressure_alt;
 				//TODO: enable temperature? diff_pressure
+				hil_sensor.diff_pressure = diff_pressure;
 				hil_sensor.fields_updated = was_reset_ ? (1 << 31) : 0;
+
+				Logger_HILSensor_.write(acceleration.x());
+				Logger_HILSensor_.write(gyro.x());
+				Logger_HILSensor_.write(mag.x());
+				Logger_HILSensor_.write(abs_pressure);
+				Logger_HILSensor_.write(pressure_alt);
+				Logger_HILSensor_.write(diff_pressure);
+				Logger_HILSensor_.endl();
+
 
 				if (hil_node_ != nullptr) {
 					hil_node_->sendMessage(hil_sensor);
@@ -1526,6 +1541,7 @@ namespace msr {
 			/* Логирование */
 			LogFileWriter Logger_HilCtrlMsg_;
 			LogFileWriter Logger_HilActCtrlMsg_;
+			LogFileWriter Logger_HILSensor_;
 		};
 
 

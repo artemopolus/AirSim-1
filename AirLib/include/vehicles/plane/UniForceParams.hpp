@@ -82,7 +82,7 @@ namespace msr {
 		private:
 			Vector3r normal_;
 			Vector3r position_;
-			uint act_id_;
+			uint act_id_ = 0;
 		};
 
 	}

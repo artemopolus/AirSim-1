@@ -93,6 +93,13 @@ private: //methods
 
         output.time_stamp = clock()->nowNanos();
 
+		Quaternionr orientation = ground_truth.kinematics->pose.orientation;
+		Vector3r velocity = ground_truth.kinematics->twist.linear;
+		Vector3r velocity_b = VectorMath::transformToBodyFrame(velocity, orientation);
+		real_T x_velocity = velocity_b.x();
+
+		output.diff_pressure = x_velocity * x_velocity*0.001;
+
         return output;
     }
     

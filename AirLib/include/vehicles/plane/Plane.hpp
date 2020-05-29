@@ -93,6 +93,7 @@ namespace msr {
 				orientation_ = getKinematics().pose.orientation;
 				Vector3r wind_tmp = getEnvironment().getState().air_wind;
 				Vector3r velocity_tmp = getKinematics().twist.linear;
+				const Vector3r velocity_angular = getKinematics().twist.angular;
 				Vector3r air_speed_tmp = wind_tmp + velocity_tmp;
 				air_speed_ = VectorMath::transformToBodyFrame(air_speed_tmp, orientation_);
 				
@@ -133,7 +134,14 @@ namespace msr {
 							Logger_.write(trg_id);
 							uniforces_[i]->setControlSignal(vehicle_api_->getActuation(trg_id));
 						}
-						uniforces_[i]->setAirSpeed(air_speed_);
+						if (type == UpdatableObject::typeUpdObj::rudder)
+						{
+							Vector3r pos = uniforces_[i]->getPosition();
+							Vector3r relative_speed = pos.cross(velocity_angular);
+							uniforces_[i]->setAirSpeed(air_speed_ + relative_speed);
+						}
+						else
+							uniforces_[i]->setAirSpeed(air_speed_);
 
 					}
 					Logger_.endl();
@@ -242,7 +250,10 @@ namespace msr {
 		private: //methods
 			void initialize(Kinematics* kinematics, Environment* environment)
 			{
-				PhysicsBody::initialize(params_->getParams().mass, params_->getParams().inertia, kinematics, environment);
+				// TODO: new inertia computation
+				Matrix3x3r inertia = Matrix3x3r::Zero();
+				params_->calculatePlaneInertiaMatrix(inertia);
+				PhysicsBody::initialize(params_->getParams().mass, inertia, kinematics, environment);
 
 				//createRotors(*params_, rotors_, environment
 				_rotors_count = params_->getParams().rotor_count;
@@ -276,7 +287,6 @@ namespace msr {
 			//		rotors.emplace_back(rotor_pose.position, rotor_pose.normal, rotor_pose.direction, params.getParams().rotor_params, environment, rotor_index);
 			//	}
 			//}
-
 			static void createRuRoWs(const PlaneParams& params, vector<UniForce*>& uniforces, const Environment* environment, LogFileWriter & logger)
 			{
 				uniforces.clear();
@@ -335,6 +345,12 @@ namespace msr {
 						logger.write(base_params->getPosition());
 						logger.write("[act id]");
 						logger.write(base_params->getActID());
+						logger.write("max_thrust");
+						logger.write(base_params->getMaxThrust());
+						logger.write("angle");
+						logger.write(base_params->getMaxAngle());
+						logger.write("resist");
+						logger.write(base_params->getResistance());
 						logger.endl();
 					}
 					if (one_force->getObjType() == UpdatableObject::typeUpdObj::wing)

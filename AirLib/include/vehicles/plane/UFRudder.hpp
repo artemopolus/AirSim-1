@@ -32,14 +32,13 @@ namespace msr {
 				reporter.writeValue("thrust", getOutput().thrust);
 				reporter.writeValue("torque", getOutput().torque_scaler);
 			}
-			
 			uint getActID() const override
 			{
 				return params_->getActID();
 			}
 			void setControlSignal(real_T control_signal) override
 			{
-				real_T ctrl = Utils::clip(control_signal, 0.0f, 1.0f);
+				real_T ctrl = Utils::clip(control_signal, -1.0f, 1.0f);
 				UniForce::setControlSignal(ctrl);
 			}
 		
@@ -47,8 +46,7 @@ namespace msr {
 			void setWrench(Wrench& wrench) override
 			{
 				Vector3r normal = getNormal();
-				Vector3r forward = Vector3r(1, 0, 0);
-				wrench.force = (normal * getOutput().thrust - forward*getOutput().resistance )* getAirDensityRatio();
+				wrench.force = normal *( getOutput().thrust + getOutput().resistance )* getAirDensityRatio();
 				wrench.torque = Vector3r(0,0,0);
 			}
 		private:
@@ -56,13 +54,23 @@ namespace msr {
 			{
 				output.control_signal_input = control_signal_filter.getInput();
 				output.control_signal_filtered = control_signal_filter.getOutput();
-				output.angle =  (output.control_signal_filtered - 0.5f) * params_->getMaxAngle() * static_cast<int>(getTurningDirection());
-				float x = getAirSpeed().x();
-				x *= x;
-				output.thrust =  x * (output.control_signal_filtered - 0.5f) * params_->getMaxThrust() * static_cast<int>(getTurningDirection());
-				output.resistance =  x * params_->getResistance();
+				auto ctrl_signal = output.control_signal_filtered - 0.5f;
+				output.angle =  ctrl_signal * params_->getMaxAngle() ;
+
+				//resistance drag
+				Vector3r unit_z(0, 1, 0);  //NED frame
+				Quaternionr angle_plane(AngleAxisr( output.angle, unit_z)); 
+				Vector3r force2plane = VectorMath::rotateVector(Vector3r(getAirSpeed().x(), 0, getAirSpeed().z()), angle_plane, true);
+				const float velocity_input = std::abs(force2plane.z()) * force2plane.z();
+				output.resistance =  velocity_input * params_->getResistance();
+				
+				//airflow correction
+				const float velocity_forward = getAirSpeed().x() * getAirSpeed().x();
+				output.thrust = velocity_forward * ctrl_signal * params_->getMaxThrust() ;
+				
 				output.torque_scaler = 0.0f;
 				output.turning_direction = getTurningDirection();
+				output.vel_input = force2plane;
 			}
 			UniForceParams& getParams() const override
 			{

@@ -36,6 +36,7 @@ namespace msr {
 				real_T control_signal_filtered;
 				real_T control_signal_input;
 				UniForceType type;
+				Vector3r vel_input;
 			};
 			
 		public: //methods

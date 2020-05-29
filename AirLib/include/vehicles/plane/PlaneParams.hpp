@@ -337,6 +337,44 @@ namespace msr {
 					inertia(2, 2) += (pos.x()*pos.x() + pos.y()*pos.y()) * motor_assembly_weight;
 				}
 			}
+		public:
+			void calculatePlaneInertiaMatrix(Matrix3x3r & inertia)
+			{
+				inertia = Matrix3x3r::Zero();
+				for (auto rotor : params_.rotor_list)
+				{
+					Vector3r pos = rotor.getPosition();
+					float motor_assembly_weight = 1.0f;
+					inertia(0, 0) += (pos.y()*pos.y() + pos.z()*pos.z()) * motor_assembly_weight;
+					inertia(1, 1) += (pos.x()*pos.x() + pos.z()*pos.z()) * motor_assembly_weight;
+					inertia(2, 2) += (pos.x()*pos.x() + pos.y()*pos.y()) * motor_assembly_weight;
+
+				}
+				for (auto wing : params_.wing_list)
+				{
+					const float dst2wing_str = 0.25f;
+					const float wing_mass = 0.2f;
+					const float wing_length = 1.0f;
+					const float wing_width = 0.3f;
+					const float wing_height = 0.06f;
+					const float wing_ax_str_2 = (dst2wing_str + wing_length * 0.5f) * (dst2wing_str + wing_length * 0.5f);
+					inertia(0, 0) += wing_mass * ( wing_length*wing_length + wing_height*wing_height) / 12 + wing_mass * wing_ax_str_2;
+					inertia(1, 1) += wing_mass * ( wing_height*wing_height + wing_width*wing_width) / 12 ;  
+					inertia(2, 2) += wing_mass * ( wing_length*wing_length + wing_width*wing_width) / 12 + wing_mass * wing_ax_str_2;
+
+				}
+				for (auto rudder : params_.rudder_list)
+				{
+					//do nothing
+				}
+				//base body inertia
+				const float base_mass = 2.0f;
+				const float radius_2 = 0.25f * 0.25f;
+				const float length_2 = 3.0f * 3.0f;
+				inertia(0, 0) += base_mass * radius_2 * 0.5f;
+				inertia(1, 1) += base_mass * (radius_2 * 0.25f + length_2/12);
+				inertia(2, 2) += base_mass * (radius_2 * 0.25f + length_2/12);
+			}
 
 		private:
 			Params params_;
