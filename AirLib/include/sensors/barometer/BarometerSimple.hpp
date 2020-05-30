@@ -98,7 +98,7 @@ private: //methods
 		Vector3r velocity_b = VectorMath::transformToBodyFrame(velocity, orientation);
 		real_T x_velocity = velocity_b.x();
 
-		output.diff_pressure = x_velocity * x_velocity*0.001;
+		output.diff_pressure = x_velocity * x_velocity*0.001f;
 
         return output;
     }

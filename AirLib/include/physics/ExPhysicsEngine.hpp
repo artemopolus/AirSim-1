@@ -68,6 +68,65 @@ namespace msr {
 				UpdatableObject::reportState(reporter);
 			}
 			//*** End: UpdatableState implementation ***//
+			static Wrench getBodyWrench(const PhysicsBody& body, const Quaternionr& orientation, LogFileWriter & logger)
+			{
+				//set wrench sum to zero
+				Wrench wrench = Wrench::zero();
+
+				/*if (isFullLogging_)
+				{
+
+				}*/
+				if (body.getObjType() == UpdatableObject::typeUpdObj::plane)
+					logger.write("[PLANE_WRENCH]");
+
+				//calculate total force on rigid body's center of gravity
+				for (uint i = 0; i < body.wrenchVertexCount(); ++i) {
+					//aggregate total
+					const PhysicsBodyVertex& vertex = body.getWrenchVertex(i);
+					const auto& vertex_wrench = vertex.getWrench();
+					wrench += vertex_wrench;
+					if (vertex.getObjType() == UpdatableObject::typeUpdObj::rotor) {
+						logger.write("rotor");
+					}
+					else if (vertex.getObjType() == UpdatableObject::typeUpdObj::rudder) {
+						logger.write("rudder");
+					}
+					else if (vertex.getObjType() == UpdatableObject::typeUpdObj::wing) {
+						logger.write("wing");
+					}
+					else {
+						logger.write("unknown");
+					}
+					logger.write("f");
+					logger.write(vertex_wrench.force);
+					logger.write("t");
+					logger.write(vertex_wrench.torque);
+					logger.write("p");
+					logger.write(vertex.getPosition());
+					//add additional torque due to force applies farther than COG
+					// tau = r X F
+					wrench.torque += vertex.getPosition().cross(vertex_wrench.force);
+					
+				}
+				if (body.getObjType() == UpdatableObject::typeUpdObj::plane) {
+					logger.write("[SUM]\tf");
+					logger.write(wrench.force);
+					logger.write("t");
+					logger.write(wrench.torque);
+				}
+				//convert force to world frame, leave torque to local frame
+				wrench.force = VectorMath::transformToWorldFrame(wrench.force, orientation);
+				if (body.getObjType() == UpdatableObject::typeUpdObj::plane)
+				{
+					logger.write("[SUM_W]\tf");
+					logger.write(wrench.force);
+					logger.write("t");
+					logger.write(wrench.torque);
+					logger.endl();
+				}
+				return wrench;
+			}
 
 		private:
 			void initPhysicsBody(PhysicsBody* body_ptr)
@@ -124,10 +183,10 @@ namespace msr {
 				plane_logger_.write(collision_info.time_stamp);
 				CollisionResponse& collision_response = body.getCollisionResponseInfo();
 				plane_logger_.write("===============[COLLISION INFO]:");
-				FString info_text = TEXT("");
+				//FString info_text = TEXT("");
 				if (collision_info.has_collided || body.isGrounded()) {
 					plane_logger_.write("HAS COLLIDED\n");
-					info_text += TEXT("COLLIDED");
+					//info_text += TEXT("COLLIDED");
 					bool is_collision_response = getNextKinematicsOnCollision2(dt, collision_info, body, current,
 						next, next_wrench, enable_ground_lock_, plane_logger_);
 					plane_logger_.write("================UPDATE COLLISION RESPONSE:");
@@ -140,12 +199,12 @@ namespace msr {
 					}
 				}
 				else {
-					info_text += TEXT("FREE");
+					//info_text += TEXT("FREE");
 					plane_logger_.write("NO\n");
 					getNextKinematicsNoCollision2(dt, body, current, next, next_wrench, plane_logger_);
 				}
 
-				UAirBlueprintLib::LogMessage(TEXT("[COLLISSION INFO]:"), info_text, LogDebugLevel::Informational);
+				//UAirBlueprintLib::LogMessage(TEXT("[COLLISSION INFO]:"), info_text, LogDebugLevel::Informational);
 				
 				//if collision was already responded then do not respond to it until we get updated information
 				//if (body.isGrounded() || (collision_info.has_collided && collision_response.collision_time_stamp != collision_info.time_stamp)) {
@@ -386,65 +445,6 @@ namespace msr {
 				return wrench;
 			}
 
-			static Wrench getBodyWrench(const PhysicsBody& body, const Quaternionr& orientation, LogFileWriter & logger)
-			{
-				//set wrench sum to zero
-				Wrench wrench = Wrench::zero();
-
-				/*if (isFullLogging_)
-				{
-
-				}*/
-				if (body.getObjType() == UpdatableObject::typeUpdObj::plane)
-					logger.write("[PLANE_WRENCH]");
-
-				//calculate total force on rigid body's center of gravity
-				for (uint i = 0; i < body.wrenchVertexCount(); ++i) {
-					//aggregate total
-					const PhysicsBodyVertex& vertex = body.getWrenchVertex(i);
-					const auto& vertex_wrench = vertex.getWrench();
-					wrench += vertex_wrench;
-					if (vertex.getObjType() == UpdatableObject::typeUpdObj::rotor) {
-						logger.write("rotor");
-					}
-					else if (vertex.getObjType() == UpdatableObject::typeUpdObj::rudder) {
-						logger.write("rudder");
-					}
-					else if (vertex.getObjType() == UpdatableObject::typeUpdObj::wing) {
-						logger.write("wing");
-					}
-					else {
-						logger.write("unknown");
-					}
-					logger.write("f");
-					logger.write(vertex_wrench.force);
-					logger.write("t");
-					logger.write(vertex_wrench.torque);
-					logger.write("p");
-					logger.write(vertex.getPosition());
-					//add additional torque due to force applies farther than COG
-					// tau = r X F
-					wrench.torque += vertex.getPosition().cross(vertex_wrench.force);
-					
-				}
-				if (body.getObjType() == UpdatableObject::typeUpdObj::plane) {
-					logger.write("[SUM]\tf");
-					logger.write(wrench.force);
-					logger.write("t");
-					logger.write(wrench.torque);
-				}
-				//convert force to world frame, leave torque to local frame
-				wrench.force = VectorMath::transformToWorldFrame(wrench.force, orientation);
-				if (body.getObjType() == UpdatableObject::typeUpdObj::plane)
-				{
-					logger.write("[SUM_W]\tf");
-					logger.write(wrench.force);
-					logger.write("t");
-					logger.write(wrench.torque);
-					logger.endl();
-				}
-				return wrench;
-			}
 			static void resForceFromFriction(float force_main, float force_fric, real_T mass, real_T dt,
 				float & acc, float & velocity, LogFileWriter & logger)
 			{
@@ -489,7 +489,7 @@ namespace msr {
 					else {
 						acc = diff / mass;}
 				}
-				velocity += 0.5*(acc + prev_acc) * dt;
+				velocity += 0.5f*(acc + prev_acc) * dt;
 
 				logger.write("[out frc]\ta");
 				logger.write(acc);
@@ -574,7 +574,7 @@ namespace msr {
 				const Kinematics::State& current, Kinematics::State& next, Wrench& next_wrench, bool enable_ground_lock, LogFileWriter & logger)
 			{
 				const bool is_horizontal_ground = Utils::isApproximatelyEqual(std::abs(collision_info.normal.z()), 1.0f, kAxisTolerance);
-
+				unused(enable_ground_lock);
 				const real_T dt_real = static_cast<real_T>(dt);
 				const Wrench body_wrench = next_wrench;
 				bool is_force = true;
@@ -684,7 +684,7 @@ namespace msr {
 				Vector3r reaction_c = Vector3r(0, 0, reaction);
 				Vector3r sum_m_c = reaction_c.cross(r_c) + torq_c;
 				Vector3r m_friction = Vector3r(frc_friction, frc_friction, 0).cross(r_c);
-				float x_v_ang_c = ang_c.x(), y_v_ang_c = ang_c.y();
+				//float x_v_ang_c = ang_c.x(), y_v_ang_c = ang_c.y();
 				Vector3r res_a_ang_c;
 				Vector3r res_v_ang_c = ang_c;
 				Vector3r m_reaction = body.getReaction(r_inv_c, hitnorm_c, mu, gravity_c);
@@ -731,7 +731,7 @@ namespace msr {
 					real_T pitch, roll, yaw;
 					VectorMath::toEulerianAngle(body.getPose().orientation, pitch, roll, yaw);
 					logger.write("\n[orientation]");
-					float unit = 180 / M_PI;
+					float unit = 180.0f / (float)M_PI;
 					logger.write(Vector3r(pitch*unit, roll*unit, yaw*unit));
 					Vector3r norm = Vector3r(0, 0, 1);
 					norm = VectorMath::transformToBodyFrame(norm, body.getPose().orientation);
@@ -763,7 +763,7 @@ namespace msr {
 					logger.write(next.accelerations.angular);
 					logger.endl();
 				}
-				FString info_text = TEXT("col_pos[")
+				/*FString info_text = TEXT("col_pos[")
 					+ FString::SanitizeFloat(collision_info.position.z())
 					+TEXT("]penetr[")
 					+FString::SanitizeFloat(collision_info.penetration_depth)
@@ -784,7 +784,7 @@ namespace msr {
 					+TEXT("]\ngr[")
 					+ (body.isGrounded()? TEXT("GROUNDED") : TEXT(""))
 					+TEXT("]")
-					;
+					;*/
 
 				computeNextPose(dt, current.pose, next.twist.linear, next.twist.angular, next);
 
@@ -797,7 +797,7 @@ namespace msr {
 				{
 					body.setGrounded(false);
 				}
-				UAirBlueprintLib::LogMessage(TEXT("On collision:"), info_text, LogDebugLevel::Informational);
+				//UAirBlueprintLib::LogMessage(TEXT("On collision:"), info_text, LogDebugLevel::Informational);
 
 				return true;
 			}

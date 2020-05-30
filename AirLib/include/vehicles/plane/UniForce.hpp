@@ -84,6 +84,18 @@ namespace msr {
 				//control_signal_filter_.setInput(Utils::clip(control_signal, 0.0f, 1.0f));
 				control_signal_filter_.setInput(control_signal);
 			}
+			void debugCtrlSignal(real_T control_signal)
+			{
+				control_signal_filter_.setDebugOutput(control_signal);
+			}
+			void debugSetOutput()
+			{
+				setOutput(output_, control_signal_filter_);
+			}
+			void debugSetAirDensityRatio()
+			{
+				air_density_ratio_ = 1.0f;
+			}
 
 			Output getOutput() const
 			{

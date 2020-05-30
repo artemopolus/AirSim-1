@@ -68,6 +68,10 @@ public:
     {
         input_ = input;
     }
+	void setDebugOutput(T input)
+	{
+		output_ = input;
+	}
     T getInput() const
     {
         return input_;

@@ -79,6 +79,78 @@ namespace msr {
 
 			}
 			//*** End: UpdatableState implementation ***//
+			void forceReset()
+			{
+				for (auto force : uniforces_)
+				{
+					force->reset();
+				}
+			}
+			void forceUpdate()
+			{
+				for (auto & force : uniforces_)
+				{
+					force->debugSetAirDensityRatio();
+					force->debugSetOutput();
+					force->forceSetWrench();
+				}
+					Logger_.write("[DEBUG_OUTPUT]");
+					for (uint rotor_index = 0; rotor_index < uniforces_.size(); ++rotor_index) {
+						const auto force_info = uniforces_.at(rotor_index)->getObjType();
+						writeType2logger(force_info);
+						auto val1 = uniforces_.at(rotor_index)->getOutput().control_signal_filtered;
+						Logger_.write("ctrl");
+						Logger_.write(val1);
+						auto val2 = uniforces_.at(rotor_index)->getOutput().thrust;
+						Logger_.write("thrust");
+						Logger_.write(val2);
+						auto val3 = uniforces_.at(rotor_index)->getOutput().torque_scaler;
+						Logger_.write("torq_scl");
+						Logger_.write(val3);
+						auto val4 = uniforces_.at(rotor_index)->getOutput().resistance;
+						Logger_.write("resistance");
+						Logger_.write(val4);
+						Logger_.write("angle");
+						Logger_.write(uniforces_.at(rotor_index)->getOutput().angle);
+						Logger_.write("air_speed");
+						Logger_.write(uniforces_.at(rotor_index)->getAirSpeed());
+						Logger_.write("force");
+						Logger_.write(uniforces_.at(rotor_index)->getWrench().force);
+						Logger_.write("normal");
+						Logger_.write(uniforces_.at(rotor_index)->getNormal());
+						Logger_.write("air_density_ratio");
+						Logger_.write(uniforces_.at(rotor_index)->getAirDensityRatio());
+						Logger_.endl();
+
+					}
+			}
+			virtual void inputForKinematicsForce(std::vector<float> inputs, Vector3r linear_velocity, Vector3r angular_velocity) override
+			{
+					Logger_.write("[MAP]");
+					for (uint i = 0; i < uniforces_.size(); i++)
+					{
+						const auto type = uniforces_[i]->getObjType();
+						writeType2logger(type);
+						if (type != UpdatableObject::typeUpdObj::wing)
+						{
+							uint trg_id = uniforces_[i]->getActID();
+							Logger_.write(trg_id);
+							uniforces_[i]->debugCtrlSignal(inputs[trg_id]);
+						}
+						if ((type == UpdatableObject::typeUpdObj::rudder)||(type == UpdatableObject::typeUpdObj::wing))
+						{
+							Vector3r pos = uniforces_[i]->getPosition();
+							Vector3r relative_speed = pos.cross(angular_velocity);
+							uniforces_[i]->setAirSpeed(linear_velocity + relative_speed);
+						}
+						else
+							uniforces_[i]->setAirSpeed(linear_velocity);
+
+					}
+					Logger_.endl();
+
+
+			}
 
 
 			//Physics engine calls this method to set next kinematics
@@ -134,7 +206,7 @@ namespace msr {
 							Logger_.write(trg_id);
 							uniforces_[i]->setControlSignal(vehicle_api_->getActuation(trg_id));
 						}
-						if (type == UpdatableObject::typeUpdObj::rudder)
+						if ((type == UpdatableObject::typeUpdObj::rudder)||(type == UpdatableObject::typeUpdObj::wing))
 						{
 							Vector3r pos = uniforces_[i]->getPosition();
 							Vector3r relative_speed = pos.cross(velocity_angular);
