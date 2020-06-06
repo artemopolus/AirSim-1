@@ -28,14 +28,56 @@ namespace msr {
 			}
 			virtual void calculateMaxThrust( std::vector<float>( datamass) )
 			{
-				if (datamass.size() != 4)
+				if (datamass.size() != 5)
 					return;
 				wing_length = datamass[0];
 				wing_width = datamass[1];
+				wing_height = datamass[2];
 				S = wing_length * wing_width;
-				C_lift = datamass[2];
-				C_resi = datamass[3];
+				C_lift = datamass[3];
+				C_resi = datamass[4];
 				calculateMaxThrust();
+			}
+			void setCoefAngAttMass( std::vector<float> angle, std::vector<float> c_lift, std::vector<float> c_drag)
+			{
+				if ((angle.size() != c_lift.size()) && (c_lift.size() != c_drag.size()))
+					return;
+				attack_angle_mass.clear();
+				C_lift_mass.clear();
+				C_drag_mass.clear();
+				attack_angle_mass = angle;
+				C_lift_mass = c_lift;
+				C_drag_mass = c_drag;
+			}
+			real_T getClift(const float angle) const 
+			{
+				if ((angle < attack_angle_mass.front()) || (angle > attack_angle_mass.back()))
+					return 0;
+				for (uint i = 0; i < (attack_angle_mass.size() - 1); i++)
+				{
+					if ((angle >= attack_angle_mass[i]) && (angle <= attack_angle_mass[i + 1]))
+					{
+						return C_lift_mass[i] + (C_lift_mass[i + 1] - C_lift_mass[i]) * 
+							(angle - attack_angle_mass[i])/
+							(attack_angle_mass[i+1] - attack_angle_mass[i]);
+					}
+				}
+				return 0;
+			}
+			real_T getCdrag(const float angle) const 
+			{
+				if ((angle < attack_angle_mass.front()) || (angle > attack_angle_mass.back()))
+					return 0;
+				for (uint i = 0; i < (attack_angle_mass.size() - 1); i++)
+				{
+					if ((angle >= attack_angle_mass[i]) && (angle <= attack_angle_mass[i + 1]))
+					{
+						return C_drag_mass[i] + (C_drag_mass[i + 1] - C_drag_mass[i]) * 
+							(angle - attack_angle_mass[i])/
+							(attack_angle_mass[i+1] - attack_angle_mass[i]);
+					}
+				}
+				return 0;
 			}
 			real_T getMlift() const
 			{
@@ -44,6 +86,26 @@ namespace msr {
 			real_T getMresi() const
 			{
 				return multResi;
+			}
+			real_T getWidth() const
+			{
+				return wing_width;
+			}
+			real_T getLength() const
+			{
+				return wing_length;
+			}
+			real_T getHeight() const
+			{
+				return wing_height;
+			}
+			void setVelocityResistence(Vector3r value)
+			{
+				VelocityResistence_ = value;
+			}
+			Vector3r getVelocityResistence() const
+			{
+				return VelocityResistence_;
 			}
 		private:
 			void initialize() override
@@ -73,9 +135,14 @@ namespace msr {
 			real_T C_resi;
 			real_T wing_length;
 			real_T wing_width;
+			real_T wing_height;
 
 			real_T multLift;
 			real_T multResi;
+			std::vector<real_T> attack_angle_mass = { 0,0,0 };
+			std::vector<real_T> C_lift_mass = { 0,0,0 };
+			std::vector<real_T> C_drag_mass = { 0,0,0 };
+			Vector3r VelocityResistence_;
 		};
 	}
 }

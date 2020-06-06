@@ -65,6 +65,10 @@ namespace msr {
 				UFRotorParams * ufrotor_params = new UFRotorParams();
 				UFRudderParams * ufrudder_params = new UFRudderParams();
 				UFWingParams *ufwing_params = new UFWingParams();
+
+				real_T base_mass;
+				real_T base_radius;
+				real_T base_length;
 			};
 
 
@@ -81,6 +85,11 @@ namespace msr {
 				sensor_storage_.clear();
 				sensors_.clear();
 				float max_rpm = 0.0f, a_d = 0.0f, p_d = 0.0f, ct = 0.0f, cp = 0.0f;
+
+				params_.base_radius = vehicle_setting->base_radius;
+				params_.base_length = vehicle_setting->base_length;
+				params_.base_mass = vehicle_setting->base_mass;
+
 				for (const auto& rotor : vehicle_setting->rotors) {
 					const AirSimSettings::RotorSetting * set = rotor.second.get();
 					max_rpm = set->max_rpm;
@@ -100,6 +109,7 @@ namespace msr {
 					one_rotor.setNormal(set->norm);
 					one_rotor.setPosition(set->pos);
 					one_rotor.setActID(set->act_id);
+					one_rotor.setMass(set->mass);
 					params_.rotor_list.emplace_back(one_rotor);
 
 				}
@@ -123,6 +133,7 @@ namespace msr {
 					one_rudder.setNormal(set->norm);
 					one_rudder.setPosition(set->pos);
 					one_rudder.setActID(set->act_id);
+					one_rudder.setMass(set->mass);
 					params_.rudder_list.emplace_back(one_rudder);
 
 				}
@@ -135,10 +146,13 @@ namespace msr {
 						params_.ufwing_params->calculateMaxThrust(values);
 					}
 					UFWingParams one_wing;
-					std::vector<float> values = { set->wing_length, set->wing_width, set->C_lift, set->C_resi };
+					std::vector<float> values = { set->wing_length, set->wing_width,set->wing_height, set->C_lift, set->C_resi };
 					one_wing.calculateMaxThrust(values);
 					one_wing.setNormal(set->norm);
 					one_wing.setPosition(set->pos);
+					one_wing.setCoefAngAttMass(set->attack_angle_mass, set->C_lift_mass, set->C_drag_mass);
+					one_wing.setMass(set->mass);
+					one_wing.setVelocityResistence(set->V_resist);
 					params_.wing_list.emplace_back(one_wing);
 				}
 
@@ -338,29 +352,42 @@ namespace msr {
 				}
 			}
 		public:
-			void calculatePlaneInertiaMatrix(Matrix3x3r & inertia)
+			void calculatePlaneInertiaMatrix(Matrix3x3r & inertia, LogFileWriter & logger)
 			{
 				inertia = Matrix3x3r::Zero();
+				float motor_assembly_weight = 0.1f;
 				for (auto rotor : params_.rotor_list)
 				{
 					Vector3r pos = rotor.getPosition();
-					float motor_assembly_weight = 1.0f;
+					motor_assembly_weight = rotor.getMass();
 					inertia(0, 0) += (pos.y()*pos.y() + pos.z()*pos.z()) * motor_assembly_weight;
 					inertia(1, 1) += (pos.x()*pos.x() + pos.z()*pos.z()) * motor_assembly_weight;
 					inertia(2, 2) += (pos.x()*pos.x() + pos.y()*pos.y()) * motor_assembly_weight;
+					logger.write("rotor mass:");
+					logger.write(motor_assembly_weight);
+					logger.endl();
 
 				}
 				for (auto wing : params_.wing_list)
 				{
 					const float dst2wing_str = 0.25f;
-					const float wing_mass = 0.2f;
-					const float wing_length = 1.0f;
-					const float wing_width = 0.3f;
-					const float wing_height = 0.06f;
+					const float wing_mass = wing.getMass();
+					const float wing_length = wing.getLength();
+					const float wing_width = wing.getWidth();
+					const float wing_height = wing.getHeight();
 					const float wing_ax_str_2 = (dst2wing_str + wing_length * 0.5f) * (dst2wing_str + wing_length * 0.5f);
-					inertia(0, 0) += wing_mass * ( wing_length*wing_length + wing_height*wing_height) / 12 + wing_mass * wing_ax_str_2;
+					inertia(0, 0) += wing_mass * ( wing_length*wing_length + wing_height*wing_height) / 12  + wing_mass * wing_ax_str_2;
 					inertia(1, 1) += wing_mass * ( wing_height*wing_height + wing_width*wing_width) / 12 ;  
-					inertia(2, 2) += wing_mass * ( wing_length*wing_length + wing_width*wing_width) / 12 + wing_mass * wing_ax_str_2;
+					inertia(2, 2) += wing_mass * ( wing_length*wing_length + wing_width*wing_width) / 12;
+					logger.write("wing m:");
+					logger.write(wing_mass);
+					logger.write("wing w:");
+					logger.write(wing_width);
+					logger.write("wing l:");
+					logger.write(wing_length);
+					logger.write("wing h:");
+					logger.write(wing_height);
+					logger.endl();
 
 				}
 				for (auto rudder : params_.rudder_list)
@@ -368,12 +395,19 @@ namespace msr {
 					//do nothing
 				}
 				//base body inertia
-				const float base_mass = 2.0f;
-				const float radius_2 = 0.25f * 0.25f;
-				const float length_2 = 3.0f * 3.0f;
+				const float base_mass = params_.base_mass;
+				const float radius_2 = params_.base_radius * params_.base_radius;
+				const float length_2 = params_.base_length * params_.base_length;
 				inertia(0, 0) += base_mass * radius_2 * 0.5f;
 				inertia(1, 1) += base_mass * (radius_2 * 0.25f + length_2/12);
 				inertia(2, 2) += base_mass * (radius_2 * 0.25f + length_2/12);
+				logger.write("base m:");
+				logger.write(base_mass);
+				logger.write("base r:");
+				logger.write(params_.base_radius);
+				logger.write("base l:");
+				logger.write(params_.base_length);
+				logger.endl();
 			}
 
 		private:

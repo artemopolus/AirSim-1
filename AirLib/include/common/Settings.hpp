@@ -149,6 +149,16 @@ public:
         return false;
     }
 
+	std::vector<float> getVectorFloat(const std::string& name, std::vector<float> defaultValue) const
+	{
+        if (doc_.count(name) == 1) {
+            return doc_[name].get<std::vector<float>>();
+        }
+        else {
+            return defaultValue;
+        }
+
+	}
     std::string getString(const std::string& name, std::string defaultValue) const
     {
         if (doc_.count(name) == 1) {

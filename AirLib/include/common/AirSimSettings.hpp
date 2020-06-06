@@ -229,6 +229,7 @@ public: //types
 		float multiR;
 		Vector3r pos;
 		Vector3r norm;
+		float mass;
 	};
 	struct RudderSettings {
 		uint act_id;
@@ -237,14 +238,21 @@ public: //types
 		float C_res;
 		Vector3r pos;
 		Vector3r norm;
+		float mass;
 		};
 	struct WingSettings {
 		float wing_length;
 		float wing_width;
+		float wing_height;
 		float C_lift;
 		float C_resi;
 		Vector3r pos;
 		Vector3r norm;
+		std::vector<float> attack_angle_mass;
+		std::vector<float> C_lift_mass;
+		std::vector<float> C_drag_mass;
+		float mass;
+		Vector3r V_resist; 
 		};
     struct VehicleSetting {
         //required
@@ -264,6 +272,9 @@ public: //types
         //nan means use player start
         Vector3r position = VectorMath::nanVector(); //in global NED
         Rotation rotation = Rotation::nanRotation();
+		float base_mass = 1.0f;
+		float base_radius;
+		float base_length;
 
         std::map<std::string, CameraSetting> cameras;
         std::map<std::string, std::unique_ptr<SensorSetting>> sensors;
@@ -752,6 +763,9 @@ private:
 			vehicle_setting = createMavLinkVehicleSetting(settings_json);
 			//for everything else we don't need derived class yet
 			msr::airlib::Settings rotors_child;
+			vehicle_setting->base_mass = settings_json.getFloat("base_mass", 1.0f);
+			vehicle_setting->base_length = settings_json.getFloat("base_length", 1.0f);
+			vehicle_setting->base_radius = settings_json.getFloat("base_radius", 1.0f);
 			if (settings_json.getChild("Rotors", rotors_child))
 			{
 				std::vector<std::string> keys;
@@ -779,6 +793,7 @@ private:
 					y = set.getFloat("norm_y", 0);
 					z = set.getFloat("norm_z", 1);
 					vehicle_setting->rotors[key]->norm = Vector3r(x, y, z);
+					vehicle_setting->rotors[key]->mass = set.getFloat("mass", 1.0f);
 				}
 			}
 			Settings rudder_child;
@@ -806,6 +821,7 @@ private:
 					y = set.getFloat("norm_y", 0);
 					z = set.getFloat("norm_z", 1);
 					one_rudder->norm = Vector3r(x, y, z);
+					one_rudder->mass = set.getFloat("mass", 1.0f);
 				}
 			}
 			Settings wing_child;
@@ -822,6 +838,7 @@ private:
 					auto & one_wing = vehicle_setting->wings[key];
 					one_wing->wing_length = set.getFloat("wing_length", 1.0f);
 					one_wing->wing_width = set.getFloat("wing_width", 1.0f);
+					one_wing->wing_height = set.getFloat("wing_height", 1.0f);
 					one_wing->C_lift = set.getFloat("C_lift", 1.0f);
 					one_wing->C_resi = set.getFloat("C_resi", 1.0f);
 					float x = 0, y = 0, z = 0;
@@ -832,7 +849,16 @@ private:
 					x = set.getFloat("norm_x", 0);
 					y = set.getFloat("norm_y", 0);
 					z = set.getFloat("norm_z", 1);
-					one_wing->norm = Vector3r(x, y, z);
+					one_wing->norm = Vector3r(x, y, z); 
+					std::vector<float> mass = {0, 0, 0};
+					one_wing->attack_angle_mass = set.getVectorFloat("attack_angle_mass", mass);
+					one_wing->C_lift_mass = set.getVectorFloat("C_lift_mass", mass);
+					one_wing->C_drag_mass = set.getVectorFloat("C_drag_mass", mass);
+					one_wing->mass = set.getFloat("mass", 1.0f);
+					x = set.getFloat("vx_resist", 1.0f);
+					y = set.getFloat("vy_resist", 1.0f);
+					z = set.getFloat("vz_resist", 1.0f);
+					one_wing->V_resist = Vector3r(x, y, z);
 				}
 			}
 

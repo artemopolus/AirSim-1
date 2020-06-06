@@ -37,6 +37,14 @@ namespace msr {
 				real_T control_signal_input;
 				UniForceType type;
 				Vector3r vel_input;
+				Vector3r torq_resist;
+
+				real_T airspeed_x_2 = 0;
+				real_T airspeed_z_2 = 0;
+				real_T c_1 = 0;
+				real_T c_2 = 0;
+				real_T c_3 = 0;
+				real_T c_4 = 0;
 			};
 			
 		public: //methods
@@ -73,6 +81,14 @@ namespace msr {
 			Vector3r getAirSpeed() const
 			{
 				return air_speed_;
+			}
+			void setRotation(Vector3r rot)
+			{
+				rotation_ = rot;
+			}
+			Vector3r getRotation() const
+			{
+				return rotation_;
 			}
 			void setForwardProjection(Vector3r norm)
 			{
@@ -179,6 +195,7 @@ namespace msr {
 			
 
 			Vector3r air_speed_;
+			Vector3r rotation_;
 		};
 
 

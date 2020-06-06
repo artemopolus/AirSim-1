@@ -44,7 +44,7 @@ namespace msr {
 				Vector3r normal = getNormal();
 				//forces and torques are proportional to air density: http://physics.stackexchange.com/a/32013/14061
 				wrench.force = normal * (getOutput().thrust + getOutput().resistance)* getAirDensityRatio();
-				wrench.torque = normal * getOutput().torque_scaler * getAirDensityRatio(); //TODO: try using filtered control here
+				wrench.torque = getOutput().torq_resist + normal * getOutput().torque_scaler * getAirDensityRatio(); //TODO: try using filtered control here
 			}
 		private:
 			void setOutput(Output& output, const FirstOrderFilter<real_T>& control_signal_filter) override
@@ -54,10 +54,33 @@ namespace msr {
 				output.control_signal_filtered = 0.0f;
 				//see relationship of rotation speed with thrust: http://physics.stackexchange.com/a/32013/14061
 				output.speed = 0.0f;
-				output.thrust = getAirSpeed().x() * getAirSpeed().x() * params_->getMlift() * static_cast<int>(getTurningDirection());
+				real_T pitch, roll, yaw;
+				Quaternionr angle_attack = Quaternionr::FromTwoVectors( Vector3r(getAirSpeed().x(), 0, getAirSpeed().z()),Vector3r(1, 0, 0));
+				VectorMath::toEulerianAngle(angle_attack, pitch, roll, yaw);
+				float unit = 180.0f / (float)M_PI;
+				pitch *= unit;
+				real_T c_lift = params_->getClift(pitch);
+				real_T c_drag = params_->getCdrag(pitch);
+				float a_x_2 = getAirSpeed().x() * getAirSpeed().x();
+				float a_z_2 = std::abs(getAirSpeed().z()) * getAirSpeed().z();
+				output.thrust =  a_x_2 * c_lift * params_->getMlift();
 				output.torque_scaler = 0.0f;
 				output.turning_direction = getTurningDirection();
-				output.resistance = std::abs(getAirSpeed().z()) * getAirSpeed().z() * params_->getMresi();
+				output.resistance = a_z_2 * c_drag * params_->getMresi();
+				output.angle = pitch;
+
+				output.airspeed_x_2 = a_x_2;
+				output.airspeed_z_2 = a_z_2;
+				output.c_1 = c_lift;
+				output.c_2 = c_drag;
+
+				Vector3r torq = getRotation();
+				Vector3r resist = params_->getVelocityResistence();
+
+				float r_x = - std::abs(torq.x()) * torq.x() * resist.x();
+				float r_y = - std::abs(torq.y()) * torq.y() * resist.y();
+				float r_z = - std::abs(torq.z()) * torq.z() * resist.z();
+				output.torq_resist = Vector3r(r_x, r_y, r_z);
 			}
 			UniForceParams& getParams() const override
 			{

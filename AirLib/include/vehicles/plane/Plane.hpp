@@ -120,34 +120,61 @@ namespace msr {
 						Logger_.write(uniforces_.at(rotor_index)->getNormal());
 						Logger_.write("air_density_ratio");
 						Logger_.write(uniforces_.at(rotor_index)->getAirDensityRatio());
+						Logger_.write("air_speed_x");
+						Logger_.write(uniforces_.at(rotor_index)->getOutput().airspeed_x_2);
+						Logger_.write("air_speed_z");
+						Logger_.write(uniforces_.at(rotor_index)->getOutput().airspeed_z_2);
+						Logger_.write("coef_1");
+						Logger_.write(uniforces_.at(rotor_index)->getOutput().c_1);
+						Logger_.write("coef_2");
+						Logger_.write(uniforces_.at(rotor_index)->getOutput().c_2);
 						Logger_.endl();
 
 					}
 			}
-			virtual void inputForKinematicsForce(std::vector<float> inputs, Vector3r linear_velocity, Vector3r angular_velocity) override
+			virtual void inputForKinematicsForce(std::vector<float> inputs) override
 			{
-					Logger_.write("[MAP]");
-					for (uint i = 0; i < uniforces_.size(); i++)
-					{
-						const auto type = uniforces_[i]->getObjType();
-						writeType2logger(type);
-						if (type != UpdatableObject::typeUpdObj::wing)
-						{
-							uint trg_id = uniforces_[i]->getActID();
-							Logger_.write(trg_id);
-							uniforces_[i]->debugCtrlSignal(inputs[trg_id]);
-						}
-						if ((type == UpdatableObject::typeUpdObj::rudder)||(type == UpdatableObject::typeUpdObj::wing))
-						{
-							Vector3r pos = uniforces_[i]->getPosition();
-							Vector3r relative_speed = pos.cross(angular_velocity);
-							uniforces_[i]->setAirSpeed(linear_velocity + relative_speed);
-						}
-						else
-							uniforces_[i]->setAirSpeed(linear_velocity);
+				const Quaternionr orientation_w = getKinematics().pose.orientation;
+				const Vector3r lin_velocity_w = getKinematics().twist.linear;
+				const Vector3r ang_velocity_w = getKinematics().twist.angular;
+				const Vector3r lin_velocity_b = VectorMath::transformToBodyFrame(lin_velocity_w, orientation_w);
+				const Vector3r ang_velocity_b = VectorMath::transformToBodyFrame(ang_velocity_w, orientation_w);
+				Logger_.write("\nForce input for Kinemtics");
+				Logger_.write("orientation_w");
+				Logger_.write(orientation_w);
+				Logger_.write("lin_velocity_w");
+				Logger_.write(lin_velocity_w);
+				Logger_.write("lin_velocity_b");
+				Logger_.write(lin_velocity_b);
+				Logger_.write("ang_velocity_w");
+				Logger_.write(ang_velocity_w);
+				Logger_.write("ang_velocity_b");
+				Logger_.write(ang_velocity_b);
+				Logger_.write("\n[MAP]");
 
+
+				for (uint i = 0; i < uniforces_.size(); i++)
+				{
+					const auto type = uniforces_[i]->getObjType();
+					writeType2logger(type);
+					if (type != UpdatableObject::typeUpdObj::wing)
+					{
+						uint trg_id = uniforces_[i]->getActID();
+						Logger_.write(trg_id);
+						uniforces_[i]->debugCtrlSignal(inputs[trg_id]);
 					}
-					Logger_.endl();
+					if ((type == UpdatableObject::typeUpdObj::rudder)||(type == UpdatableObject::typeUpdObj::wing))
+					{
+						Vector3r pos = uniforces_[i]->getPosition();
+						Vector3r relative_speed = pos.cross(ang_velocity_b);
+						uniforces_[i]->setAirSpeed(lin_velocity_b + relative_speed);
+						uniforces_[i]->setRotation(ang_velocity_b);
+					}
+					else
+						uniforces_[i]->setAirSpeed(lin_velocity_b);
+
+				}
+				Logger_.endl();
 
 
 			}
@@ -165,10 +192,10 @@ namespace msr {
 				orientation_ = getKinematics().pose.orientation;
 				Vector3r wind_tmp = getEnvironment().getState().air_wind;
 				Vector3r velocity_tmp = getKinematics().twist.linear;
-				const Vector3r velocity_angular = getKinematics().twist.angular;
+				const Vector3r velocity_angular_w = getKinematics().twist.angular;
 				Vector3r air_speed_tmp = wind_tmp + velocity_tmp;
 				air_speed_ = VectorMath::transformToBodyFrame(air_speed_tmp, orientation_);
-				
+				const Vector3r velocity_angular = VectorMath::transformToBodyFrame(velocity_angular_w, orientation_);
 
 				if (isFullLogging_) {
 					Logger_.write("[air_speed]\tw");
@@ -211,6 +238,7 @@ namespace msr {
 							Vector3r pos = uniforces_[i]->getPosition();
 							Vector3r relative_speed = pos.cross(velocity_angular);
 							uniforces_[i]->setAirSpeed(air_speed_ + relative_speed);
+							uniforces_[i]->setRotation(velocity_angular);
 						}
 						else
 							uniforces_[i]->setAirSpeed(air_speed_);
@@ -316,6 +344,10 @@ namespace msr {
 			{
 				return uniforces_.at(rotor_index)->getOutput();
 			}
+			uint getForcesCount() const
+			{
+				return (uint)uniforces_.size();
+			}
 
 			virtual ~Plane() = default;
 
@@ -324,7 +356,7 @@ namespace msr {
 			{
 				// TODO: new inertia computation
 				Matrix3x3r inertia = Matrix3x3r::Zero();
-				params_->calculatePlaneInertiaMatrix(inertia);
+				params_->calculatePlaneInertiaMatrix(inertia, Logger_);
 				PhysicsBody::initialize(params_->getParams().mass, inertia, kinematics, environment);
 
 				//createRotors(*params_, rotors_, environment
@@ -434,6 +466,13 @@ namespace msr {
 						logger.write(base_params->getPosition());
 						logger.write("[act id]");
 						logger.write(base_params->getActID());
+						logger.write("torq_resist");
+						logger.write(base_params->getVelocityResistence());
+						logger.write("mass");
+						logger.write(base_params->getMass());
+						logger.write("torq_resist");
+						logger.write(base_params->getVelocityResistence());
+
 						logger.endl();
 					}
 				}

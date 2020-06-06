@@ -55,11 +55,9 @@ public: //interface
         collision_info_ = collision_info;
     }
 
-	virtual void inputForKinematicsForce(std::vector<float> inputs, Vector3r linear_velocity, Vector3r angular_velocity)
+	virtual void inputForKinematicsForce(std::vector<float> inputs)
 	{
 		unused(inputs);
-		unused(linear_velocity);
-		unused(angular_velocity);
 	}
 
     virtual void updateKinematics(const Kinematics::State& state)

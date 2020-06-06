@@ -55,6 +55,14 @@ namespace msr {
 			{
 				return act_id_;
 			}
+			void setMass(float mass)
+			{
+				mass_ = mass;
+			}
+			real_T getMass() const
+			{
+				return mass_;
+			}
 			virtual ~UniForceParams()
 			{
 
@@ -83,6 +91,7 @@ namespace msr {
 			Vector3r normal_;
 			Vector3r position_;
 			uint act_id_ = 0;
+			real_T mass_;
 		};
 
 	}
