@@ -118,7 +118,7 @@
       <PreprocessorDefinitions>_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(ProjectDir)..\AirLib\deps\eigen3;$(ProjectDir)..\AirLib\include;$(ProjectDir)..\MavLinkCom\include</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <AdditionalOptions>/w34263 /w34266 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/w34263 /w34266 /bigobj %(AdditionalOptions)</AdditionalOptions>
       <DisableSpecificWarnings>4100;4505;4820;4464;4514;4710;4571;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
