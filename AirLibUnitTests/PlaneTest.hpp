@@ -34,7 +34,7 @@ namespace msr {
 				plane->inputForKinematicsForce(inputs);
 				plane->forceUpdate();
 				PhysicsBody * body = static_cast<PhysicsBody *>(plane);
-				Wrench result_wrench = ExPhysicsEngine::getBodyWrench(*body, current.pose.orientation, log);
+				Wrench result_wrench = ExPhysicsEngine::calcDebugGetBodyWrench(*body, current.pose.orientation, log);
 				LOG_WRITE_TEST(header + "[1]initial state");
 				ExPhysicsEngine::stateReport2log(current, log);
 				LOG_WRITE_TEST("Forces output\n");
@@ -83,7 +83,7 @@ namespace msr {
 				plane->setTwist(current.twist);
 				plane->inputForKinematicsForce(inputs);
 				plane->forceUpdate();
-				result_wrench = ExPhysicsEngine::getBodyWrench(*body, current.pose.orientation, log);
+				result_wrench = ExPhysicsEngine::calcDebugGetBodyWrench(*body, current.pose.orientation, log);
 				LOG_WRITE_TEST(header + "[1]initial state");
 				ExPhysicsEngine::stateReport2log(current, log);
 				body->setGrounded(true);
@@ -200,7 +200,7 @@ namespace msr {
 				collision_info.has_collided = true;
 				collision_info.collision_count = 1;
 				collision_info.impact_point = Vector3r::Zero();
-				collision_info.normal = Vector3r(0, 0, 1);
+				collision_info.normal = Vector3r(0, 0, -1);
 				collision_info.object_id = 1;
 				collision_info.object_name = "test_ground";
 				collision_info.penetration_depth = 0;
@@ -330,7 +330,7 @@ namespace msr {
 				for (auto & plane : planes)
 				{
 					PhysicsBody * body = static_cast<PhysicsBody *>(plane.get());
-					Wrench result = ExPhysicsEngine::getBodyWrench(*body, current.pose.orientation, log);
+					Wrench result = ExPhysicsEngine::calcDebugGetBodyWrench(*body, current.pose.orientation, log);
 				}
 				std::cout << "Done getting wrench" << std::endl;
 				try {

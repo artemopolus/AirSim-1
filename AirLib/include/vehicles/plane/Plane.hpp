@@ -206,6 +206,8 @@ namespace msr {
 					Logger_.write(air_speed_);
 					Logger_.write("q_b");
 					Logger_.write(orientation_);
+					Logger_.write("w");
+					Logger_.write(velocity_angular);
 					Logger_.endl();
 				}
 
@@ -300,12 +302,17 @@ namespace msr {
 				//return rotors_.at(index);
 				/*PhysicsBodyVertex & ret = *uniforces_.at(index);
 				return ret;*/
+				auto & one_force = uniforces_.at(index);
 				Logger_.write("[OUT_WRENCH]");
-				writeType2logger(uniforces_.at(index)->getObjType());
+				writeType2logger(one_force->getObjType());
 				Logger_.write("F");
-				Logger_.write(uniforces_.at(index)->getWrench().force);
+				Logger_.write(one_force->getWrench().force);
 				Logger_.write("M");
-				Logger_.write(uniforces_.at(index)->getWrench().torque);
+				Logger_.write(one_force->getWrench().torque);
+				Logger_.write("air_speed");
+				Logger_.write(one_force->getAirSpeed());
+				Logger_.write("ang_velocity");
+				Logger_.write(one_force->getRotation());
 				Logger_.endl();
 				return *uniforces_.at(index);
 			}

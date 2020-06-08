@@ -59,6 +59,7 @@ namespace msr {
 				real_T csf_tc = this->getCtrlSigFltTC();
 				control_signal_filter_.initialize(csf_tc, 0, 0);
 				air_speed_ = Vector3r::Zero();
+				rotation_ = Vector3r::Zero();
 
 				PhysicsBodyVertex::initialize(position, normal);   //call base initializer
 			}
