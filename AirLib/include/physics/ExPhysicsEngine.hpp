@@ -79,7 +79,7 @@ namespace msr {
 				const Kinematics::State& current, Kinematics::State& next, Wrench& next_wrench, bool enable_ground_lock, LogFileWriter & logger)
 			{
 				getNextKinematicsOnCollision2(dt, collision_info, body, current,
-					next, next_wrench, enable_ground_lock, logger);
+					next, next_wrench, enable_ground_lock, logger, true);
 			}
 			static Wrench calcDebugGetBodyWrench(PhysicsBody & body, Quaternionr & orientation, LogFileWriter & logger)
 			{
@@ -170,7 +170,7 @@ namespace msr {
 					plane_logger_.write("HAS COLLIDED\n");
 					//info_text += TEXT("COLLIDED");
 					bool is_collision_response = getNextKinematicsOnCollision2(dt, collision_info, body, current,
-						next, next_wrench, enable_ground_lock_, plane_logger_);
+						next, next_wrench, enable_ground_lock_, plane_logger_, false);
 					plane_logger_.write("================UPDATE COLLISION RESPONSE:");
 					if (collision_response.collision_time_stamp != collision_info.time_stamp) {
 						plane_logger_.write("YES\n");
@@ -612,14 +612,13 @@ namespace msr {
 				logger.endl();
 			}
 			static bool getNextKinematicsOnCollision2(TTimeDelta dt, const CollisionInfo& collision_info, PhysicsBody& body,
-				const Kinematics::State& current, Kinematics::State& next, Wrench& next_wrench, bool enable_ground_lock, LogFileWriter & logger)
+				const Kinematics::State& current, Kinematics::State& next, Wrench& next_wrench, bool enable_ground_lock, LogFileWriter & logger, const bool log_on)
 			{
 				const bool is_horizontal_ground = Utils::isApproximatelyEqual(std::abs(collision_info.normal.z()), 1.0f, kAxisTolerance);
 
 				const real_T dt_real = static_cast<real_T>(dt);
 				const Wrench body_wrench = next_wrench;
-				bool is_force = true;
-				if (is_force) {
+				if (log_on) {
 					logger.write("=================================================\n");
 					logger.write("[OC_INPUT]\tf");
 					logger.write(body_wrench.force);
@@ -667,6 +666,8 @@ namespace msr {
 				Vector3r hitnorm_c = VectorMath::transformToBodyFrame(collision_info.normal, q2collision);
 				Vector3r gravity_c = VectorMath::transformToBodyFrame(gravity_w, q2collision);
 
+				if (log_on)
+				{
 				logger.write("[OC_BODY]\tf");
 				logger.write(sum_f_c);
 				logger.write("v");
@@ -674,6 +675,8 @@ namespace msr {
 				logger.write("a");
 				logger.write(acc_c);
 				logger.endl();
+
+				}
 				float reaction = (sum_f_c.z() > 0) ? 0 : (-sum_f_c.z());
 				float mu = 0.0005f;
 				float frc_friction = mu * reaction;
@@ -684,32 +687,38 @@ namespace msr {
 				float z_f_c = (sum_f_c.z() + reaction);
 				Vector3r res_a_lin_c = Vector3r(x_f_c, y_f_c, 0);
 
-				logger.write("===================collision type: ");
 				const float eps = 0.2f;
 				const float vertical_velocity_collision = collision_info.normal.dot(current.twist.linear);
-				logger.write(vertical_velocity_collision);
 				const float eqzerovelocity = 0.1f;
 				float vert_vel_z = vel_c.z() + (z_f_c + acc_c.z())*0.5f*dt_real;
-				logger.write("vert acc z");
-				logger.write(z_f_c);
-				logger.write("vert vel z");
-				logger.write(vert_vel_z);
+				if (log_on) 
+				{
+					logger.write("===================collision type: ");
+					logger.write(vertical_velocity_collision);
+					logger.write("vert acc z");
+					logger.write(z_f_c);
+					logger.write("vert vel z");
+					logger.write(vert_vel_z);
+				}
 				if ((vert_vel_z > -eqzerovelocity)&&(vert_vel_z < eqzerovelocity)) {
-					logger.write("stay ground \r\n");
+					if(log_on)
+						logger.write("stay ground \r\n");
 					vert_vel_z = 0.0f;
 				}
 				else if(vert_vel_z >= eqzerovelocity ) {
-					logger.write(" out collision \r\n");
+					if(log_on)
+						logger.write(" out collision \r\n");
 				}
 				else {
-					logger.write(" penetrate \r\n");
+					if(log_on)
+						logger.write(" penetrate \r\n");
 					vert_vel_z = -vel_c.z()*eps;
 				}			
 				//float vert_vel_z = (collission_type == 2) ? -vel_c.z()*eps : vel_c.z();
 
 				Vector3r res_v_lin_c = Vector3r(x_v_c, y_v_c, vert_vel_z);
 
-				if (is_force) {
+				if (log_on) {
 					logger.write("[OC_CALC_SUM_FORCES]\tF_w");
 					logger.write(sum_force_world);
 					logger.write("F_c");
@@ -729,12 +738,15 @@ namespace msr {
 				Vector3r res_a_ang_c;
 				Vector3r res_v_ang_c = ang_c;
 				Vector3r m_reaction = body.getReaction(r_inv_c, hitnorm_c, mu, gravity_c);
-				logger.write("============CALC MOMENTUM\nr_inv_c");
-				logger.write(r_inv_c);
-				logger.write("[hitnorm_c] ");
-				logger.write(hitnorm_c);
-				logger.write("[gravity_c] ");
-				logger.write(gravity_c);
+				if (log_on)
+				{
+					logger.write("============CALC MOMENTUM\nr_inv_c");
+					logger.write(r_inv_c);
+					logger.write("[hitnorm_c] ");
+					logger.write(hitnorm_c);
+					logger.write("[gravity_c] ");
+					logger.write(gravity_c);
+				}
 				resMomentumFromFriction(sum_m_c, m_friction, m_reaction,
 					body.getInertiaInv(), dt_real,
 					res_a_ang_c, res_v_ang_c, logger);
@@ -747,10 +759,12 @@ namespace msr {
 				const Quaternionr body_orientation = body.getPose().orientation;
 				const Vector3r angular_vel_b = VectorMath::transformToBodyFrame(current.twist.angular, body.getPose().orientation);
 				const Vector3r angular_acc_b = VectorMath::transformToBodyFrame(current.accelerations.angular, body.getPose().orientation);
-				const Vector3r torque_b = VectorMath::transformToBodyFrame(next_wrench.torque, body.getPose().orientation);
+				//const Vector3r torque_b = VectorMath::transformToBodyFrame(next_wrench.torque, body.getPose().orientation);
+				const Vector3r torque_b = next_wrench.torque;
 
 				avg_angular = angular_vel_b + angular_acc_b * dt_real;
-				const Vector3r angular_momentum = body.getInertia() * avg_angular;
+				Matrix3x3r I = body.getInertia();
+				const Vector3r angular_momentum = I * avg_angular;
 				//const Vector3r angular_momentum_rate = torque_b - avg_angular.cross(angular_momentum);
 				const Vector3r angular_momentum_rate = torque_b;
 				//Matrix3x3r IInv = body.getInertiaInv();
@@ -760,13 +774,39 @@ namespace msr {
 				IInv(2, 2) = 1;
 				res_a_ang_c = IInv * angular_momentum_rate;
 				res_v_ang_c = angular_vel_b + (angular_acc_b + res_a_ang_c) * (0.5f * dt_real);
+				if (log_on)
+				{
+					LOG_WRITE("=>Moment => angular velocity\nangular_velocity:");
+					LOG_WRITE(avg_angular);
+					LOG_WRITE("\nangular_momentum");
+					LOG_WRITE(angular_momentum);
+					LOG_WRITE("\nangular_momentum_rate");
+					LOG_WRITE(angular_momentum_rate);
+					LOG_WRITE("\nI\n");
+					LOG_WRITE(I);
+					LOG_WRITE("\nI_inv\n");
+					LOG_WRITE(IInv);
+					LOG_WRITE("\nT");
+					LOG_WRITE(torque_b);
+					LOG_WRITE("\ninit_acc");
+					LOG_WRITE(angular_acc_b);
+					LOG_WRITE("\nint_vel");
+					LOG_WRITE(angular_vel_b);
+
+					LOG_WRITE("\nacc_ang");
+					LOG_WRITE(res_a_ang_c);
+					LOG_WRITE("\nvel_ang");
+					LOG_WRITE(res_v_ang_c);
+
+					logger.endl();
+				}
 
 				next.twist.linear = VectorMath::transformToWorldFrame(res_v_lin_c, q2collision);
 				next.accelerations.linear = VectorMath::transformToWorldFrame(res_a_lin_c, q2collision);
 				next.twist.angular = VectorMath::transformToWorldFrame(res_v_ang_c, body_orientation);
 				next.accelerations.angular = VectorMath::transformToWorldFrame(res_a_ang_c, body_orientation);
 
-				if (is_force) {
+				if (log_on) {
 					logger.write("=============CALC IMPULSE\nBODY[position]");
 					logger.write(body.getPose().position);
 					real_T pitch, roll, yaw;

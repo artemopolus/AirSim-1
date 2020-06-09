@@ -20,7 +20,7 @@ namespace msr {
 			{
 				std::cout << "Plane test" << std::endl;
 			}
-			void evaluate(Plane * plane, std::vector<float> inputs, Kinematics::State & current, Kinematics::State & next, 
+			void evaluate(Plane * plane, std::vector<float> inputs, const Kinematics::State & current, Kinematics::State & next, 
 				TTimeDelta dt, CollisionInfo& collision_info, std::string pointer_name, 
 				LogFileWriter & log)
 			{
@@ -34,7 +34,8 @@ namespace msr {
 				plane->inputForKinematicsForce(inputs);
 				plane->forceUpdate();
 				PhysicsBody * body = static_cast<PhysicsBody *>(plane);
-				Wrench result_wrench = ExPhysicsEngine::calcDebugGetBodyWrench(*body, current.pose.orientation, log);
+				Kinematics::State observation = current;
+				Wrench result_wrench = ExPhysicsEngine::calcDebugGetBodyWrench(*body, observation.pose.orientation, log);
 				LOG_WRITE_TEST(header + "[1]initial state");
 				ExPhysicsEngine::stateReport2log(current, log);
 				LOG_WRITE_TEST("Forces output\n");
@@ -68,37 +69,37 @@ namespace msr {
 				ExPhysicsEngine::calcDebugBodyKinematicsNoCollisions(dt, *body, current, next, result_wrench, log);
 				LOG_WRITE_TEST(header + "\n=====>[1]REPORT:" + pointer_name);
 				ExPhysicsEngine::stateReport2log(next, log);
-				current.accelerations.linear = next.accelerations.linear;
-				current.accelerations.angular = next.accelerations.angular;
+				observation.accelerations.linear = next.accelerations.linear;
+				observation.accelerations.angular = next.accelerations.angular;
 				LOG_WRITE_TEST(header + "[2]initial state");
 				ExPhysicsEngine::stateReport2log(current, log);
-				ExPhysicsEngine::calcDebugBodyKinematicsNoCollisions(dt, *body, current, next, result_wrench, log);
+				ExPhysicsEngine::calcDebugBodyKinematicsNoCollisions(dt, *body, observation, next, result_wrench, log);
 				LOG_WRITE_TEST(header + "\n=====>[2]REPORT:" + pointer_name);
 				ExPhysicsEngine::stateReport2log(next, log);
-				current.accelerations.linear = Vector3r::Zero();
-				current.accelerations.angular = Vector3r::Zero();
+				/*current.accelerations.linear = Vector3r::Zero();
+				current.accelerations.angular = Vector3r::Zero();*/
 
 				header = "\n=====>[ON COLLISION]";
 				plane->setPose(current.pose);
 				plane->setTwist(current.twist);
 				plane->inputForKinematicsForce(inputs);
 				plane->forceUpdate();
-				result_wrench = ExPhysicsEngine::calcDebugGetBodyWrench(*body, current.pose.orientation, log);
+				result_wrench = ExPhysicsEngine::calcDebugGetBodyWrench(*body, observation.pose.orientation, log);
 				LOG_WRITE_TEST(header + "[1]initial state");
 				ExPhysicsEngine::stateReport2log(current, log);
 				body->setGrounded(true);
 				ExPhysicsEngine::calcDebugBodyKinematicsOnCollisions(dt, collision_info, *body, current, next, result_wrench, true, log);
 				LOG_WRITE_TEST(header + "\n=====>[1]REPORT:" + pointer_name);
 				ExPhysicsEngine::stateReport2log(next, log);
-				current.accelerations.linear = next.accelerations.linear;
-				current.accelerations.angular = next.accelerations.angular;
+				observation.accelerations.linear = next.accelerations.linear;
+				observation.accelerations.angular = next.accelerations.angular;
 				LOG_WRITE_TEST(header + "[2]initial state");
 				ExPhysicsEngine::stateReport2log(current, log);
-				ExPhysicsEngine::calcDebugBodyKinematicsOnCollisions(dt, collision_info, *body, current, next, result_wrench, true, log);
+				ExPhysicsEngine::calcDebugBodyKinematicsOnCollisions(dt, collision_info, *body, observation, next, result_wrench, true, log);
 				LOG_WRITE_TEST(header + "\n=====>[2]REPORT:" + pointer_name);
 				ExPhysicsEngine::stateReport2log(next, log);
-				current.accelerations.linear = Vector3r::Zero();
-				current.accelerations.angular = Vector3r::Zero();
+				/*current.accelerations.linear = Vector3r::Zero();
+				current.accelerations.angular = Vector3r::Zero();*/
 				LOG_WRITE_TEST("\n===============================================\n");
 
 			}
@@ -236,11 +237,15 @@ namespace msr {
 					LOG_WRITE_TEST("\n========================");
 					std::string plane_tested_mode = "";
 					std::vector<float> data_input;
-					plane_tested_mode = " zero inputs zero rotation";
-					current.pose.orientation = start_angle;
-					data_input = inputs_zero;
-					evaluate(phys_vehicle.get(), data_input, current, next, dt, collision_info, "start normal angle" + plane_tested_mode, log);
-					current.pose.orientation = middle_angle;
+					plane_tested_mode = "analysis position";
+					current.pose.orientation = Quaternionr(0.00310554f,	0.503667f, - 0.0119108f, - 0.86381f);
+					current.twist.linear = Vector3r(-3.54498f, - 0.00353718f,	0.0f);
+					current.twist.angular = Vector3r(0.0258447f,	11.1272f, - 0.00258371f);
+					current.accelerations.linear = Vector3r(-0.229462f, - 0.0157405f,	0.0f);
+					current.accelerations.angular = Vector3r(0.129511f,	409.993f, - 0.10382f);
+					data_input = { 0.0f,	0.652944f,	0.0f,	0.2f };
+					evaluate(phys_vehicle.get(), data_input, current, next, dt, collision_info, "initial" + plane_tested_mode, log);
+				/*	current.pose.orientation = middle_angle;
 					evaluate(phys_vehicle.get(), data_input, current, next, dt, collision_info, "middle normal angle" + plane_tested_mode, log);
 					current.pose.orientation = middle_angle_invert;
 					evaluate(phys_vehicle.get(), data_input, current, next, dt, collision_info, "middle invert angle" + plane_tested_mode, log);
@@ -248,8 +253,8 @@ namespace msr {
 					evaluate(phys_vehicle.get(), data_input, current, next, dt, collision_info, "attack normal angle" + plane_tested_mode, log);
 					current.pose.orientation = attack_angle_invert;
 					evaluate(phys_vehicle.get(), data_input, current, next, dt, collision_info, "attack invert angle" + plane_tested_mode, log);
-
-					current.twist.linear = linear_velocity;
+*/
+					/*current.twist.linear = linear_velocity;
 					current.twist.angular = angular_velocity;
 					current.pose.orientation = start_angle;
 					evaluate(phys_vehicle.get(), inputs, current, next, dt, collision_info, "[FROM ZERO positive]", log);
@@ -316,7 +321,7 @@ namespace msr {
 					evaluate(phys_vehicle.get(), inputs_rvrsRoll, current, next, dt, collision_info, name_try + "negative roll]", log);
 					evaluate(phys_vehicle.get(), inputs_rvrsPitch, current, next, dt, collision_info,name_try + " negative pitch]", log);
 					evaluate(phys_vehicle.get(), inputs_fullroll_1, current, next, dt, collision_info,name_try + " full roll positive]", log);
-					evaluate(phys_vehicle.get(), inputs_fullpitch_1, current, next, dt, collision_info,name_try + " full pitch positive]", log);
+					evaluate(phys_vehicle.get(), inputs_fullpitch_1, current, next, dt, collision_info,name_try + " full pitch positive]", log);*/
 
 
 					planes.push_back(std::move(phys_vehicle));

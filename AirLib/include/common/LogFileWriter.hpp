@@ -84,9 +84,10 @@ public:
     void write(const Quaternionr& q)
     {
         if (enabled_) {
-            real_T p, r, y;
+            /*real_T p, r, y;
             VectorMath::toEulerianAngle(q, p, r, y);
-            log_file_ << Utils::radiansToDegrees(r) << "\t" << Utils::radiansToDegrees(p) << "\t" << Utils::radiansToDegrees(y) << "\t";
+            log_file_ << Utils::radiansToDegrees(r) << "\t" << Utils::radiansToDegrees(p) << "\t" << Utils::radiansToDegrees(y) << "\t";*/
+			log_file_ << q.w()<< "\t" << q.x()<< "\t" << q.y()<< "\t" << q.z()<< "\t";
         }
     }
     void endl()
