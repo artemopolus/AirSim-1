@@ -136,6 +136,8 @@ namespace msr {
 				plane_logger_.write(current.twist.angular);
 				plane_logger_.write("t");
 				plane_logger_.write(current.accelerations.angular);
+				plane_logger_.write("q");
+				plane_logger_.write(current.pose.orientation);
 				plane_logger_.write("\n");
 				/*
 				plane_logger_.write("ACC  ANG \t >>>> [");
