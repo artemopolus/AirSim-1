@@ -757,9 +757,11 @@ namespace msr {
 
 				Vector3r avg_angular = Vector3r::Zero();
 				const Quaternionr body_orientation = body.getPose().orientation;
-				const Vector3r angular_vel_b = VectorMath::transformToBodyFrame(current.twist.angular, body.getPose().orientation);
-				const Vector3r angular_acc_b = VectorMath::transformToBodyFrame(current.accelerations.angular, body.getPose().orientation);
+				//const Vector3r angular_vel_b = VectorMath::transformToBodyFrame(current.twist.angular, body.getPose().orientation);
+				//const Vector3r angular_acc_b = VectorMath::transformToBodyFrame(current.accelerations.angular, body.getPose().orientation);
 				//const Vector3r torque_b = VectorMath::transformToBodyFrame(next_wrench.torque, body.getPose().orientation);
+				const Vector3r angular_vel_b = current.twist.angular;
+				const Vector3r angular_acc_b = current.accelerations.angular;
 				const Vector3r torque_b = next_wrench.torque;
 
 				avg_angular = angular_vel_b + angular_acc_b * dt_real;
@@ -803,8 +805,10 @@ namespace msr {
 
 				next.twist.linear = VectorMath::transformToWorldFrame(res_v_lin_c, q2collision);
 				next.accelerations.linear = VectorMath::transformToWorldFrame(res_a_lin_c, q2collision);
-				next.twist.angular = VectorMath::transformToWorldFrame(res_v_ang_c, body_orientation);
-				next.accelerations.angular = VectorMath::transformToWorldFrame(res_a_ang_c, body_orientation);
+				//next.twist.angular = VectorMath::transformToWorldFrame(res_v_ang_c, body_orientation);
+				//next.accelerations.angular = VectorMath::transformToWorldFrame(res_a_ang_c, body_orientation);
+				next.twist.angular = res_v_ang_c;
+				next.accelerations.angular = res_a_ang_c;
 
 				if (log_on) {
 					logger.write("=============CALC IMPULSE\nBODY[position]");
@@ -872,7 +876,7 @@ namespace msr {
 				if ((res_v_lin_c.z() == 0.0) && (!body.isGrounded()))
 				{
 					body.setGrounded(true);
-				next.pose.position = collision_info.position + collision_info.normal*0.1;
+				next.pose.position = collision_info.position + collision_info.normal*1.0f;
 				}
 				if ((res_v_lin_c.z() != 0.0) && (body.isGrounded()))
 				{

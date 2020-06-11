@@ -199,7 +199,8 @@ namespace msr {
 				const Vector3r velocity_angular_w = getKinematics().twist.angular;
 				Vector3r air_speed_tmp = wind_tmp + velocity_tmp;
 				air_speed_ = VectorMath::transformToBodyFrame(air_speed_tmp, orientation_);
-				const Vector3r velocity_angular = VectorMath::transformToBodyFrame(velocity_angular_w, orientation_);
+				//const Vector3r velocity_angular = VectorMath::transformToBodyFrame(velocity_angular_w, orientation_);
+				const Vector3r velocity_angular = velocity_angular_w;
 
 				if (isFullLogging_) {
 					Logger_.write("[air_speed]\tw");

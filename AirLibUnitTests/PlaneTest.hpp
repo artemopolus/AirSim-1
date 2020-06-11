@@ -238,12 +238,12 @@ namespace msr {
 					std::string plane_tested_mode = "";
 					std::vector<float> data_input;
 					plane_tested_mode = "analysis position";
-					current.pose.orientation = Quaternionr(0.00310554f,	0.503667f, - 0.0119108f, - 0.86381f);
-					current.twist.linear = Vector3r(-3.54498f, - 0.00353718f,	0.0f);
-					current.twist.angular = Vector3r(0.0258447f,	11.1272f, - 0.00258371f);
-					current.accelerations.linear = Vector3r(-0.229462f, - 0.0157405f,	0.0f);
-					current.accelerations.angular = Vector3r(0.129511f,	409.993f, - 0.10382f);
-					data_input = { 0.0f,	0.652944f,	0.0f,	0.2f };
+					current.pose.orientation = Quaternionr(1.3426e-07f,	0.130546f,	2.7853e-08f, - 0.991442f);
+					current.twist.linear = Vector3r(-19.9225f, - 3.06884e-05f,	0.0f);
+					current.twist.angular = Vector3r(-2.62967e-07f,	0.378691f,	1.83762e-07f);
+					current.accelerations.linear = Vector3r(2.59648f,	1.05689e-06f,	0.0f);
+					current.accelerations.angular = Vector3r(-3.63043e-07f,	1.33101f,	2.60288e-08f);
+					data_input = { 0.508388f,	0.425022f, - 0.1f,	0.5f };
 					evaluate(phys_vehicle.get(), data_input, current, next, dt, collision_info, "initial" + plane_tested_mode, log);
 				/*	current.pose.orientation = middle_angle;
 					evaluate(phys_vehicle.get(), data_input, current, next, dt, collision_info, "middle normal angle" + plane_tested_mode, log);
