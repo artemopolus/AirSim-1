@@ -46,6 +46,7 @@ public:
     void initialize(const State& initial)
     {
         initial_ = initial;
+		initial_.gravity = initial.gravity;
 
         setHomeGeoPoint(initial_.geo_point);
 

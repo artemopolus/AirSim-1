@@ -277,7 +277,10 @@ namespace msr {
 						Logger_.write(val3);
 						auto val4 = uniforces_.at(rotor_index)->getOutput().resistance;
 						Logger_.write("resistance");
+						Logger_.write(uniforces_.at(rotor_index)->getOutput().airspeed_x_2);
 						Logger_.write(val4);
+						Logger_.write(uniforces_.at(rotor_index)->getAirSpeed().x());
+						Logger_.write(uniforces_.at(rotor_index)->getOutput().c_1);
 						Logger_.write("angle");
 						Logger_.write(uniforces_.at(rotor_index)->getOutput().angle);
 	

@@ -58,7 +58,10 @@ namespace msr { namespace airlib {
 				output.thrust = output.control_signal_filtered * params_->max_thrust* static_cast<int>(getTurningDirection());
 				output.torque_scaler = output.control_signal_input * params_->max_torque * static_cast<int>(getTurningDirection())*0.0f;
 				output.turning_direction = getTurningDirection();
-				output.resistance = -std::abs(getAirSpeed().x()) * getAirSpeed().x() * params_->getMultiResistance();
+				const float x_2 = -std::abs(getAirSpeed().x()) * getAirSpeed().x();
+				output.airspeed_x_2 = x_2;
+				output.resistance = x_2 * params_->getMultiResistance();
+				output.c_1 = params_->getMultiResistance();
 			}
 			UniForceParams& getParams() const override
 			{

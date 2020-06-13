@@ -31,7 +31,7 @@ namespace msr {
 			}
 			virtual void calculateMaxThrust( std::vector<float>( datamass) )
 			{
-				if (datamass.size() != 5)
+				if (datamass.size() != 6)
 					return;
 				max_rpm = datamass[0];
 				propeller_diameter = datamass[1];

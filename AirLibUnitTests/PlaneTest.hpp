@@ -129,8 +129,13 @@ namespace msr {
 
 				Environment::State initial_environment;
 				initial_environment.air_density = EarthUtils::getAirDensity(0.0f);
-				initial_environment.gravity = Vector3r(0, 0, 1) * EarthUtils::getGravity(0.0f);
-				environment.reset(new Environment(initial_environment));
+				initial_environment.gravity = Vector3r(0, 0, 1.0f) * EarthUtils::getGravity(0.0f);
+				initial_environment.geo_point.altitude = 0.0f;
+				initial_environment.geo_point.latitude = 59.970326f;
+				initial_environment.geo_point.longitude = 30.315967f;
+				initial_environment.position = Vector3r(0, 0, 0);
+				Environment * init_env = new Environment(initial_environment);
+				environment.reset(init_env);
 
 				std::vector<std::unique_ptr<msr::airlib::Plane>> planes;
 
@@ -238,12 +243,12 @@ namespace msr {
 					std::string plane_tested_mode = "";
 					std::vector<float> data_input;
 					plane_tested_mode = "analysis position";
-					current.pose.orientation = Quaternionr(1.3426e-07f,	0.130546f,	2.7853e-08f, - 0.991442f);
-					current.twist.linear = Vector3r(-19.9225f, - 3.06884e-05f,	0.0f);
-					current.twist.angular = Vector3r(-2.62967e-07f,	0.378691f,	1.83762e-07f);
-					current.accelerations.linear = Vector3r(2.59648f,	1.05689e-06f,	0.0f);
-					current.accelerations.angular = Vector3r(-3.63043e-07f,	1.33101f,	2.60288e-08f);
-					data_input = { 0.508388f,	0.425022f, - 0.1f,	0.5f };
+					current.twist.linear = Vector3r(-19.6147f, - 3.29007f,	0.0f);
+					current.accelerations.linear = Vector3r(-0.350621f, - 0.1171f,	0.0f);
+					current.twist.angular = Vector3r(-0.000205379f,	0.0409153f,	0.0f);
+					current.accelerations.angular = Vector3r(0.00953806f,	0.11197f,	0.0f);
+					current.pose.orientation = Quaternionr(0.000646364f,	0.0762938f, - 0.00769841f, - 0.997056f);
+					data_input = { 0.503568f,	0.49609f, - 0.1f,	0.5f };
 					evaluate(phys_vehicle.get(), data_input, current, next, dt, collision_info, "initial" + plane_tested_mode, log);
 				/*	current.pose.orientation = middle_angle;
 					evaluate(phys_vehicle.get(), data_input, current, next, dt, collision_info, "middle normal angle" + plane_tested_mode, log);
