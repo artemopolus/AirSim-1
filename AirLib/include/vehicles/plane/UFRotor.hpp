@@ -62,6 +62,7 @@ namespace msr { namespace airlib {
 				output.airspeed_x_2 = x_2;
 				output.resistance = x_2 * params_->getMultiResistance();
 				output.c_1 = params_->getMultiResistance();
+				output.c_2 = params_->max_thrust;
 			}
 			UniForceParams& getParams() const override
 			{
